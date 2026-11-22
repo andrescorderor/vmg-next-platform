@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --vmg-red: #E70000;
+  --vmg-red-dark: #b80000;
+  --vmg-charcoal: #121214;
+  --vmg-surface: #18181c;
+  --vmg-card-dark: #1e1e24;
+  --vmg-light: #f7f7f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Sora', 'Space Grotesk', sans-serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+a, button, label, select, summary, [role="button"] {
+  cursor: pointer !important;
+}
+
+/* Marquee animation for testimonials */
+@keyframes marqueeLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 48s linear infinite;
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 52s linear infinite;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* Custom prose for blog articles */
+.vmg-prose h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #121214;
+  margin-top: 2rem;
+  margin-bottom: 0.85rem;
+  line-height: 1.25;
+}
+
+.vmg-prose h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #18181c;
+  margin-top: 1.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.vmg-prose p {
+  font-size: 1.05rem;
+  line-height: 1.78;
+  color: #3a3d45;
+  margin-bottom: 1.15rem;
+}
+
+.vmg-prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: #3a3d45;
+}
+
+.vmg-prose li {
+  margin-bottom: 0.5rem;
+  line-height: 1.65;
+}
+
+.vmg-prose blockquote {
+  border-left: 4px solid #E70000;
+  background: #fdf2f2;
+  padding: 1rem 1.25rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-style: italic;
+  color: #18181c;
+  margin: 1.5rem 0;
+}
