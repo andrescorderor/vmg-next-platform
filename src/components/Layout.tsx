@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
-  ArrowUp,
   CheckCircle2,
-  Menu,
-  Phone,
   ShieldCheck,
   Sparkles,
   Wrench,
@@ -12,6 +9,16 @@ import {
 } from 'lucide-react';
 import { useVmg } from '../context/VmgContext';
 
+declare global {
+  interface Window {
+    Swiper?: any;
+    L?: any;
+  }
+}
+
+/* ============================================================================
+   1. ESTIMATING SOFTWARE API MODAL ("Request Consultation" -> ocv1_...)
+   ============================================================================ */
 export function EstimatingConsultationModal() {
   const {
     estimateModalOpen,
@@ -28,7 +35,7 @@ export function EstimatingConsultationModal() {
   const [phone, setPhone] = useState('');
   const [serviceType, setServiceType] = useState('Tilt-Up Construction');
   const [estimatedSqft, setEstimatedSqft] = useState('');
-  const [budgetRange, setBudgetRange] = useState('$250,000 – $1,000,000');
+  const [budgetRange, setBudgetRange] = useState('$150,000 – $500,000');
   const [projectLocation, setProjectLocation] = useState('Salt Lake City, UT');
   const [timeline, setTimeline] = useState('Within 60 Days');
   const [message, setMessage] = useState('');
@@ -67,7 +74,7 @@ export function EstimatingConsultationModal() {
       setEstimatedSqft('');
       setMessage('');
       closeEstimateModal();
-    }, 550);
+    }, 500);
   };
 
   return (
@@ -77,7 +84,7 @@ export function EstimatingConsultationModal() {
       onClick={(e) => {
         if (e.target === e.currentTarget) closeEstimateModal();
       }}
-      className="fixed inset-0 z-[9990] flex items-center justify-center bg-[#121214]/80 p-4 backdrop-blur-md"
+      className="vmg-admin-scope fixed inset-0 z-[9995] flex items-center justify-center bg-[#121214]/85 p-4 backdrop-blur-md"
     >
       <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/15 bg-[#18181c] p-6 text-white shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
@@ -90,7 +97,7 @@ export function EstimatingConsultationModal() {
               Request Consultation &amp; Project Estimate
             </h2>
             <p className="mt-1 text-xs text-zinc-400">
-              Connected directly to VMG NeXT Estimating Pipeline ({settings.estimatingApiKey.slice(0, 12)}...)
+              Connected directly to VMG NeXT Estimating Pipeline ({settings.estimatingApiKey.slice(0, 14)}...)
             </p>
           </div>
           <button
@@ -281,8 +288,23 @@ export function EstimatingConsultationModal() {
   );
 }
 
-export function PreFooterCta({ badge = 'CONTACT', heading = "Ready to Build What's Next?" }: { badge?: string; heading?: string }) {
-  const { settings, services, submitEstimateLead, openEstimateModal } = useVmg();
+/* ============================================================================
+   2. EXACT VMG NeXT PRE-FOOTER CTA (.section-call-to-action-bottom)
+   ============================================================================ */
+export function PreFooterCta({
+  badge = 'CONTACT',
+  heading = "Ready to Build What’s Next?",
+  formHeading = "Let’s build something great on time, on budget, and beyond expectations.",
+  phoneSubtext = 'Have a question? Give Us a Call',
+  showExploreLinks = false,
+}: {
+  badge?: string;
+  heading?: string;
+  formHeading?: string;
+  phoneSubtext?: string;
+  showExploreLinks?: boolean;
+}) {
+  const { settings, submitEstimateLead, openEstimateModal } = useVmg();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -294,15 +316,15 @@ export function PreFooterCta({ badge = 'CONTACT', heading = "Ready to Build What
     if (!name.trim() || !email.trim() || !phone.trim()) return;
     submitEstimateLead({
       fullName: name.trim(),
-      company: 'Website Inquiry',
+      company: 'Website Form Inquiry',
       email: email.trim(),
       phone: phone.trim(),
       serviceType: service || 'Commercial Construction',
       estimatedSqft: 'TBD',
-      budgetRange: 'Standard Inquiry',
+      budgetRange: 'TBD',
       projectLocation: 'Utah',
-      timeline: 'Immediate',
-      message: `Quick Schedule a Call request from footer form (${service || 'General'}).`,
+      timeline: 'Within 60 Days',
+      message: `Submitted via ${badge} bottom CTA form.`,
     });
     setName('');
     setEmail('');
@@ -311,434 +333,662 @@ export function PreFooterCta({ badge = 'CONTACT', heading = "Ready to Build What
   };
 
   return (
-    <section className="border-t border-zinc-200 bg-white py-20 text-[#121214]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-6">
-            <span className="inline-flex items-center rounded-full border border-[#121214] px-4 py-1 text-xs font-bold uppercase tracking-widest text-[#121214]">
-              {badge}
-            </span>
-            <h2 className="mt-4 font-heading text-4xl font-extrabold tracking-tight text-[#121214] sm:text-5xl">
-              {heading}
-            </h2>
-            <p className="mt-4 max-w-xl text-base text-zinc-600">
-              Partner with Utah&apos;s premier commercial construction and structural concrete team. From Salt Lake City to Park City, we deliver on time and on budget.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#E70000] text-white shadow-lg shadow-[#E70000]/30">
-                <Phone className="h-7 w-7" />
+    <div className="section-call-to-action-bottom">
+      <div className="container">
+        <div className="row pb-4">
+          <div className="col-xl-6">
+            <div className="why-us-content-wrapper">
+              <div className="mission-wrapper">
+                <p className="why-us home-prefooter-animate">{badge}</p>
               </div>
-              <div>
-                <p className="text-sm font-medium text-zinc-500">Have a question? Give Us a Call</p>
-                <a
-                  href={`tel:${settings.phone.replace(/\D/g, '')}`}
-                  className="font-heading text-2xl font-extrabold text-[#121214] transition hover:text-[#E70000] sm:text-3xl"
+              <h2 className="why-title home-prefooter-animate-title">{heading}</h2>
+              <div className="phone-wrapper home-prefooter-animate-phone">
+                <div className="big-red-bullet">
+                  <img
+                    src="https://vmgnext.com/wp-content/uploads/2025/06/Vector.png"
+                    alt="phone icon"
+                    className="phone-icon"
+                  />
+                </div>
+                <div className="phone-inner-wrapper">
+                  <p className="why-para bottom-para">{phoneSubtext}</p>
+                  <a href={`tel:${settings.phone.replace(/[^0-9]/g, '')}`} className="header-telephone">
+                    <i></i> {settings.phone}
+                  </a>
+                </div>
+              </div>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => openEstimateModal()}
+                  className="global-btn"
+                  style={{ cursor: 'pointer', border: 'none' }}
                 >
-                  {settings.phone}
-                </a>
+                  <span className="btn-text-wrapper">
+                    <span className="btn-text">Request Consultation &amp; Estimate</span>
+                  </span>
+                </button>
               </div>
-            </div>
-            <div className="mt-7">
-              <button
-                type="button"
-                onClick={() => openEstimateModal()}
-                className="inline-flex min-h-[48px] items-center gap-2.5 rounded-full border-2 border-[#E70000] bg-[#E70000]/10 px-6 text-xs font-bold uppercase tracking-wider text-[#E70000] transition hover:bg-[#E70000] hover:text-white"
-              >
-                <Wrench className="h-4 w-4" />
-                <span>Open Estimating Software Portal (Request Consultation)</span>
-              </button>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-zinc-200 bg-[#f7f7f8] p-6 shadow-sm sm:p-9 lg:col-span-6">
-            <h3 className="font-heading text-xl font-bold leading-snug text-[#121214] sm:text-2xl">
-              Let&apos;s build something great on time, on budget, and beyond expectations.
-            </h3>
-            <form onSubmit={handleQuickSubmit} className="mt-6 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <input
-                  type="text"
-                  required
-                  placeholder="Full Name*"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="min-h-[46px] w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm text-[#121214] focus:border-[#E70000] focus:outline-none"
-                />
-                <input
-                  type="email"
-                  required
-                  placeholder="Email*"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="min-h-[46px] w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm text-[#121214] focus:border-[#E70000] focus:outline-none"
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <input
-                  type="tel"
-                  required
-                  placeholder="Phone Number*"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="min-h-[46px] w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm text-[#121214] focus:border-[#E70000] focus:outline-none"
-                />
-                <select
-                  value={service}
-                  onChange={(e) => setService(e.target.value)}
-                  className="min-h-[46px] w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm text-[#121214] focus:border-[#E70000] focus:outline-none"
-                >
-                  <option value="">Select Services</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.title}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <label className="flex items-center gap-2.5 text-xs text-zinc-600">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  required
-                  className="h-4 w-4 accent-[#E70000]"
-                />
-                <span>
-                  I have read and agree to the{' '}
-                  <Link to="/privacy-policy" className="font-semibold text-[#E70000] underline">
-                    Privacy Policy
-                  </Link>{' '}
-                  and{' '}
-                  <Link to="/terms-of-use" className="font-semibold text-[#E70000] underline">
-                    Terms of Use
-                  </Link>
-                  .
-                </span>
-              </label>
-              <button
-                type="submit"
-                className="min-h-[48px] rounded-full bg-[#E70000] px-8 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-[#121214]"
-              >
-                Schedule a call
-              </button>
-            </form>
+          <div className="col-xl-6">
+            <h3 className="home-form-title home-form-title-animate">{formHeading}</h3>
+            <div className="wpcf7 js" lang="en-US" dir="ltr">
+              <form onSubmit={handleQuickSubmit} className="wpcf7-form init" aria-label="Contact form">
+                <div className="form-wrapper">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <p>
+                        <span className="wpcf7-form-control-wrap">
+                          <input
+                            size={40}
+                            maxLength={400}
+                            className="wpcf7-form-control wpcf7-text wpcf7-validates-as-required"
+                            required
+                            placeholder="Full Name*"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            type="text"
+                          />
+                        </span>
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <p>
+                        <span className="wpcf7-form-control-wrap">
+                          <input
+                            size={40}
+                            maxLength={400}
+                            className="wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text"
+                            required
+                            placeholder="Email*"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            type="email"
+                          />
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <p>
+                        <span className="wpcf7-form-control-wrap">
+                          <input
+                            size={40}
+                            maxLength={400}
+                            className="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required wpcf7-text"
+                            required
+                            placeholder="Phone Number*"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            type="tel"
+                          />
+                        </span>
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <p>
+                        <span className="wpcf7-form-control-wrap">
+                          <select
+                            className="wpcf7-form-control wpcf7-select wpcf7-validates-as-required"
+                            value={service}
+                            onChange={(e) => setService(e.target.value)}
+                          >
+                            <option value="">Select Services</option>
+                            <option value="Tilt-Up">Tilt-Up</option>
+                            <option value="Water Treatment">Water Treatment</option>
+                            <option value="Slabs">Slabs</option>
+                            <option value="Educational Facilities">Educational Facilities</option>
+                            <option value="Commercial Construction">Commercial Construction</option>
+                            <option value="High-End Homes">High-End Homes</option>
+                          </select>
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="form-bottom">
+                    <div className="form-radio-section">
+                      <p>
+                        <span className="wpcf7-form-control-wrap">
+                          <span className="wpcf7-form-control wpcf7-checkbox">
+                            <span className="wpcf7-list-item first last">
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  checked={agreed}
+                                  onChange={(e) => setAgreed(e.target.checked)}
+                                />
+                                <span className="wpcf7-list-item-label">
+                                  I have read and agree to your Privacy Policy and Terms of Use.
+                                </span>
+                              </label>
+                            </span>
+                          </span>
+                        </span>
+                      </p>
+                    </div>
+                    <div className="form-submission">
+                      <div className="btn-wrapper">
+                        <p>
+                          <button
+                            type="submit"
+                            className="global-btn"
+                            style={{ border: 'none', cursor: 'pointer' }}
+                          >
+                            <span className="btn-text-wrapper">
+                              <span className="btn-text">Schedule a call</span>
+                            </span>
+                          </button>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+
+        {showExploreLinks && (
+          <div className="careers-cta-links-row">
+            <div className="global-seperator" style={{ margin: '50px 0 40px' }}></div>
+            <p className="careers-cta-links-label">Explore More</p>
+            <div className="careers-cta-links">
+              <Link to="/about-us" className="careers-cta-link">
+                About Us
+              </Link>
+              <Link to="/team" className="careers-cta-link">
+                Our Team
+              </Link>
+              <Link to="/services" className="careers-cta-link">
+                Our Services
+              </Link>
+              <Link to="/careers" className="careers-cta-link">
+                Careers
+              </Link>
+              <Link to="/contact-us" className="careers-cta-link">
+                Contact
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
 }
 
-export function Layout() {
-  const { settings, openEstimateModal, toasts, dismissToast } = useVmg();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [showTopBtn, setShowTopBtn] = useState(false);
-  const location = useLocation();
+/* ============================================================================
+   3. EXACT VMG NeXT LEAFLET MAP (.section-contact-maps)
+   ============================================================================ */
+export function ContactMapSection() {
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
-    setMobileOpen(false);
+    let timer: any;
+    const initLeaflet = () => {
+      if (!mapContainerRef.current) return;
+      if (mapInstanceRef.current) return;
+      if (window.L) {
+        try {
+          const map = window.L.map(mapContainerRef.current).setView([40.6171431, -111.8568923], 16);
+          window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap & CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19,
+          }).addTo(map);
+          window.L.marker([40.6171431, -111.8568923])
+            .addTo(map)
+            .bindPopup('7370 S Creek Rd. STE 204<br>Sandy, Utah 84093')
+            .openPopup();
+          mapInstanceRef.current = map;
+        } catch {
+          // ignore duplicate map container errors
+        }
+      } else {
+        timer = setTimeout(initLeaflet, 250);
+      }
+    };
+    initLeaflet();
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+        } catch {
+          // ignore
+        }
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  return (
+    <div className="section-contact-maps">
+      <div
+        ref={mapContainerRef}
+        style={{ width: '100%', height: '400px', borderRadius: '12px' }}
+      />
+    </div>
+  );
+}
+
+/* ============================================================================
+   4. MAIN LAYOUT (#wrapper -> header.navbar-black-bg + Outlet + footer#footer)
+   ============================================================================ */
+export function Layout() {
+  const { settings, openEstimateModal, toasts, team, blogs } = useVmg();
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setMobileOpen(false);
+    document.body.style.overflow = '';
   }, [location.pathname]);
 
   useEffect(() => {
-    const onScroll = () => setShowTopBtn(window.scrollY > 320);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const onScroll = () => {
+      setShowTopBtn(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navItems = [
-    { label: 'Services', path: '/services' },
-    { label: 'Projects', path: '/projects' },
-    { label: 'About', path: '/about-us' },
-    { label: 'Team', path: '/team' },
-    { label: 'Careers', path: '/careers' },
-    { label: 'Blog', path: '/blog' },
-    { label: 'Restoration', path: '/restoration' },
-    { label: 'Contact', path: '/contact-us' },
-  ];
-
-  const isActive = (p: string) => location.pathname === p || location.pathname.startsWith(p + '/');
+  const toggleMobileMenu = () => {
+    const next = !mobileOpen;
+    setMobileOpen(next);
+    document.body.style.overflow = next ? 'hidden' : '';
+  };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#121214] text-[#f5f5f7]">
-      {/* Top Navbar replicating VMG NeXT header.php + Request Consultation & Admin CMS Pill */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#121214]/95 backdrop-blur-md">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-          <Link to="/" className="flex shrink-0 items-center gap-3">
-            <img
-              src={settings.logoHeader}
-              alt="VMG NeXT Construction Logo"
-              className="h-10 w-auto object-contain sm:h-11"
-            />
-          </Link>
+    <>
+      <a href="#main" className="visually-hidden-focusable">
+        Skip to main content
+      </a>
 
-          {/* Desktop Navigation */}
-          <ul className="hidden items-center gap-5 xl:flex">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`text-xs font-bold uppercase tracking-wider transition ${
-                    isActive(item.path) ? 'text-[#E70000]' : 'text-zinc-200 hover:text-[#E70000]'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Right Action Buttons */}
-          <div className="hidden items-center gap-3 lg:flex">
-            <a
-              href={`tel:${settings.phone.replace(/\D/g, '')}`}
-              className="inline-flex min-h-[42px] items-center gap-2 text-xs font-bold tracking-wide text-zinc-200 transition hover:text-[#E70000]"
-            >
-              <Phone className="h-3.5 w-3.5 text-[#E70000]" />
-              <span>{settings.phone}</span>
-            </a>
-
-            <button
-              type="button"
-              onClick={() => openEstimateModal()}
-              className="inline-flex min-h-[42px] items-center gap-1.5 rounded-full bg-[#E70000] px-4 text-[11px] font-bold uppercase tracking-wider text-white shadow-lg shadow-[#E70000]/25 transition hover:bg-[#ff1f1f]"
-            >
-              <span>Request Consultation</span>
-            </button>
-
-            <Link
-              to="/admin"
-              className={`inline-flex min-h-[42px] items-center gap-1.5 rounded-full border px-3.5 text-[11px] font-bold uppercase tracking-wider transition ${
-                isActive('/admin')
-                  ? 'border-[#E70000] bg-[#E70000]/20 text-white'
-                  : 'border-white/20 bg-white/5 text-zinc-200 hover:border-[#E70000] hover:text-white'
-              }`}
-              title="Open Admin CMS & AI Blog Studio"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[#E70000]" />
-              <span>Admin CMS</span>
-            </Link>
-          </div>
-
-          {/* Mobile Burger Button */}
-          <div className="flex items-center gap-2 xl:hidden">
-            <Link
-              to="/admin"
-              className="inline-flex min-h-[42px] items-center gap-1 rounded-full border border-white/20 bg-white/5 px-3 text-[11px] font-bold uppercase text-white"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[#E70000]" />
-              <span>CMS</span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Toggle navigation menu"
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </nav>
-
-        {/* Mobile Drawer */}
-        {mobileOpen && (
-          <div className="border-t border-white/10 bg-[#16161a] px-6 py-6 xl:hidden">
-            <ul className="grid grid-cols-2 gap-3">
-              {navItems.map((item) => (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`flex min-h-[44px] items-center rounded-xl px-3 text-xs font-bold uppercase tracking-wider ${
-                      isActive(item.path)
-                        ? 'bg-[#E70000] text-white'
-                        : 'bg-white/5 text-zinc-200 hover:bg-white/10'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-5 flex flex-col gap-3 border-t border-white/10 pt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  openEstimateModal();
-                }}
-                className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-[#E70000] text-xs font-bold uppercase tracking-wider text-white"
-              >
-                <Wrench className="h-4 w-4" />
-                <span>Request Consultation (Estimating Portal)</span>
-              </button>
-              <a
-                href={`tel:${settings.phone.replace(/\D/g, '')}`}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/15 text-xs font-bold text-zinc-200"
-              >
-                <Phone className="h-4 w-4 text-[#E70000]" />
-                <span>Call {settings.phone}</span>
-              </a>
-            </div>
-          </div>
-        )}
-      </header>
-
-      {/* Main Content */}
-      <main id="main" className="flex-1">
-        <Outlet />
-      </main>
-
-      {/* VMG NeXT Footer */}
-      <footer className="border-t border-white/10 bg-[#121214] pt-16 pb-12 text-zinc-300">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <Link to="/" className="inline-block">
-                <img
-                  src={settings.logoFooter}
-                  alt="VMG NeXT Footer Logo"
-                  className="h-11 w-auto object-contain"
-                />
-              </Link>
-              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-                VMG NeXT is a pioneering construction company redefining the future of construction with innovative strategies and high-impact projects. Specializing in advanced structural solutions like slabs, cast-in-place, and tilt-up across Utah.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-heading text-sm font-bold uppercase tracking-widest text-white">Info</h3>
-              <p className="mt-4 text-sm text-zinc-400">{settings.address}</p>
-              <div className="mt-4 space-y-2 text-sm">
-                <div>
-                  <span className="block text-xs font-semibold uppercase text-zinc-500">Victor Galvan (CEO)</span>
-                  <a href={`mailto:${settings.emailCeo}`} className="text-zinc-200 transition hover:text-[#E70000]">
-                    {settings.emailCeo}
-                  </a>
-                </div>
-                <div>
-                  <span className="block text-xs font-semibold uppercase text-zinc-500">Office &amp; Estimating</span>
-                  <a href={`mailto:${settings.emailGeneral}`} className="text-zinc-200 transition hover:text-[#E70000]">
-                    {settings.emailGeneral}
-                  </a>
-                </div>
-                <div>
-                  <span className="block text-xs font-semibold uppercase text-zinc-500">Direct Phone</span>
-                  <a href={`tel:${settings.phone.replace(/\D/g, '')}`} className="text-zinc-200 transition hover:text-[#E70000]">
-                    {settings.phone}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-heading text-sm font-bold uppercase tracking-widest text-white">More</h3>
-              <ul className="mt-4 space-y-2.5 text-sm">
-                <li><Link to="/services" className="hover:text-[#E70000]">Services</Link></li>
-                <li><Link to="/projects" className="hover:text-[#E70000]">Projects Portfolio</Link></li>
-                <li><Link to="/about-us" className="hover:text-[#E70000]">About Us</Link></li>
-                <li><Link to="/team" className="hover:text-[#E70000]">Leadership &amp; Team</Link></li>
-                <li><Link to="/careers" className="hover:text-[#E70000]">Careers</Link></li>
-                <li><Link to="/restoration" className="hover:text-[#E70000]">Restoration Division</Link></li>
-                <li><Link to="/blog" className="hover:text-[#E70000]">Blog &amp; Insights</Link></li>
-                <li><Link to="/privacy-policy" className="hover:text-[#E70000]">Privacy Policy</Link></li>
-                <li><Link to="/terms-of-use" className="hover:text-[#E70000]">Terms Of Use</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-heading text-sm font-bold uppercase tracking-widest text-white">Social Media &amp; Portal</h3>
-              <ul className="mt-4 space-y-2.5 text-sm">
-                <li>
-                  <a href={settings.socialLinkedin} target="_blank" rel="noreferrer" className="hover:text-[#E70000]">
-                    LinkedIn ↗
-                  </a>
-                </li>
-                <li>
-                  <a href={settings.socialFacebook} target="_blank" rel="noreferrer" className="hover:text-[#E70000]">
-                    Facebook ↗
-                  </a>
-                </li>
-                <li>
-                  <a href={settings.socialInstagram} target="_blank" rel="noreferrer" className="hover:text-[#E70000]">
-                    Instagram ↗
-                  </a>
-                </li>
-                <li>
-                  <a href={settings.socialTiktok} target="_blank" rel="noreferrer" className="hover:text-[#E70000]">
-                    TikTok ↗
-                  </a>
-                </li>
-              </ul>
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs font-semibold text-white">Admin &amp; AI Blog Studio</p>
-                <p className="mt-1 text-[11px] text-zinc-400">
-                  Manage team members, AI blog posts, and estimating leads.
-                </p>
-                <Link
-                  to="/admin"
-                  className="mt-3 inline-flex min-h-[38px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#E70000] px-3 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-[#ff1a1a]"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Open /admin Panel</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-zinc-500">
-            <p>Copyright {new Date().getFullYear()} © VMG NeXT Construction. All Rights Reserved.</p>
-            <p>Sandy · Salt Lake City · Park City, Utah · Cloud Architecture $0/mo</p>
-          </div>
+      {/* Toast Notification Banner */}
+      {toasts.length > 0 && (
+        <div className="vmg-admin-scope fixed top-6 right-6 z-[9999] flex max-w-md items-center gap-3 rounded-2xl border border-white/20 bg-[#18181c] px-5 py-3.5 text-sm font-medium text-white shadow-2xl">
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-[#E70000]" />
+          <span>{toasts[toasts.length - 1].text}</span>
         </div>
-      </footer>
+      )}
 
-      {/* Fixed Action Buttons (matching VMG NeXT fixed-buttons-container) */}
-      <div className="fixed right-5 bottom-5 z-40 flex flex-col gap-3">
-        {showTopBtn && (
-          <button
-            type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label="Back to top"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-[#18181c] text-white shadow-xl transition hover:border-[#E70000] hover:bg-[#E70000]"
-          >
-            <ArrowUp className="h-5 w-5" />
-          </button>
-        )}
+      <div id="wrapper">
+        {/* EXACT VMG NeXT HEADER */}
+        <header className="navbar-black-bg">
+          <nav className="container navigation-wrapper navbar-black-bg">
+            <div className="row">
+              <div className="col-xxl-4 col-lg-12 col-6">
+                <div className="header-logo-wrapper">
+                  <Link to="/" className="header-logo-link">
+                    <img src={settings.logoHeader} alt="header VMG Next logo" />
+                  </Link>
+                </div>
+              </div>
+              <div className="col-xxl-8 col-lg-12 col-6 mobile-menu-column-flex d-flex d-xxl-block justify-content-end align-items-center">
+                {/* DESKTOP MENU */}
+                <div className="main-nav-right-part desktop-menu">
+                  <div className="main-nav-wrapper">
+                    <ul className="main-nav">
+                      <li className="menu-item">
+                        <Link to="/services" className="menu-item-link">
+                          Services
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/projects" className="menu-item-link">
+                          Projects
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/about-us" className="menu-item-link">
+                          About
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/team" className="menu-item-link">
+                          Team
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/careers" className="menu-item-link">
+                          Careers
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/blog" className="menu-item-link">
+                          Blog
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/restoration" className="menu-item-link">
+                          Restoration
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/contact-us" className="menu-item-link">
+                          Contact
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="header-book-wrapper">
+                    <a
+                      href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
+                      className="header-telephone"
+                    >
+                      <i className="fa-solid fa-phone"></i> {settings.phone}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => openEstimateModal()}
+                      className="header-estimate-btn"
+                    >
+                      <i className="fa-solid fa-calculator"></i> Request Consultation
+                    </button>
+                    <Link to="/contact-us" className="header-calendar">
+                      Schedule a call
+                    </Link>
+                  </div>
+                </div>
+
+                {/* MOBILE MENU BURGER */}
+                <button
+                  type="button"
+                  className={`burger ${mobileOpen ? 'open' : ''}`}
+                  id="burger"
+                  onClick={toggleMobileMenu}
+                  aria-label="Toggle navigation menu"
+                >
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+
+                {/* MOBILE MENU DRAWER */}
+                <div
+                  className={`mobile-menu ${mobileOpen ? 'open' : ''}`}
+                  id="mobileMenu"
+                  style={{
+                    transform: mobileOpen ? 'translateX(0%)' : 'translateX(100%)',
+                    opacity: mobileOpen ? 1 : 0,
+                    visibility: mobileOpen ? 'visible' : 'hidden',
+                    transition: 'transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease',
+                  }}
+                >
+                  <div className="header-logo-wrapper">
+                    <Link to="/" className="header-logo-link" onClick={() => setMobileOpen(false)}>
+                      <img
+                        src="https://vmgnext.com/wp-content/uploads/2025/06/Group-1.png"
+                        alt="header VMG Next logo"
+                      />
+                    </Link>
+                  </div>
+                  <div className="main-nav-wrapper">
+                    <ul className="main-nav">
+                      <li className="menu-item">
+                        <Link to="/services" className="menu-item-link">
+                          Services
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/projects" className="menu-item-link">
+                          Projects
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/about-us" className="menu-item-link">
+                          About
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/team" className="menu-item-link">
+                          Team
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/careers" className="menu-item-link">
+                          Careers
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/blog" className="menu-item-link">
+                          Blog
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/restoration" className="menu-item-link">
+                          Restoration
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/contact-us" className="menu-item-link">
+                          Contact
+                        </Link>
+                      </li>
+                      <li className="menu-item">
+                        <Link to="/admin" className="menu-item-link" style={{ color: '#E70000' }}>
+                          Admin CMS &amp; AI Studio
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="header-book-wrapper">
+                    <a
+                      href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
+                      className="header-telephone"
+                    >
+                      <img
+                        src="https://vmgnext.com/wp-content/uploads/2025/06/Vector-1.png"
+                        alt="mobile telephone icon"
+                        className="mobile-tel-icon"
+                      />{' '}
+                      {settings.phone}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        openEstimateModal();
+                      }}
+                      className="header-estimate-btn"
+                    >
+                      Request Consultation
+                    </button>
+                    <Link to="/contact-us" className="header-calendar">
+                      Schedule a call
+                    </Link>
+                  </div>
+                  <div className="mobile-menu-footer">
+                    <div className="mobile-menu-copyrights">
+                      <p>Copyright 2026 © VMG Next. All Rights Reserved.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </header>
+
+        {/* PAGE CONTENT */}
+        <main id="main">
+          <Outlet />
+        </main>
+
+        {/* EXACT VMG NeXT FOOTER */}
+        <footer id="footer">
+          <div className="row footer-first-row">
+            <div className="col-xl-3 col-md-6 col-12">
+              <div className="footer-widget-wrapper border-none">
+                <Link to="/" className="footer-logo">
+                  <img src={settings.logoFooter} alt="VMG Next footer logo" />
+                </Link>
+                <p className="footer-about-para">
+                  VMG NeXT Is A Pioneering Construction Company Redefining The Future Of Construction
+                  With Innovative Strategies And High Impact Projects. Specializing In Advanced
+                  Structural Solutions Like Slabs, Cast-In-Place And Tilt-Up, VMG Next Is Committed
+                  To Delivering Exceptional Value To Clients Across Diverse Sectors.
+                </p>
+              </div>
+            </div>
+            <div className="col-xl-3 col-md-6 col-12">
+              <div className="footer-widget-wrapper">
+                <h3 className="widget-title">Info</h3>
+                <p className="address-footer">7370 S Creek Rd. STE 204 Sandy Utah 84093</p>
+                <div className="footer-info-wrapper">
+                  <p className="info-title">Victor Galvan</p>
+                  <a href="mailto:victor@vmgnext.com" className="info-link">
+                    info@vmgnext.com
+                  </a>
+                </div>
+                <div className="footer-info-wrapper">
+                  <p className="info-title">Office</p>
+                  <a href="mailto:info@vmgnext.com" className="info-link">
+                    info@vmgnext.com
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="col-xl-3 col-md-6 col-12">
+              <div className="footer-widget-wrapper">
+                <h3 className="widget-title">More</h3>
+                <ul className="footer-menu">
+                  <li className="footer-menu-item">
+                    <Link to="/privacy-policy" className="footer-menu-link">
+                      Privacy Policy
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/terms-of-use" className="footer-menu-link">
+                      Terms Of Use
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/services" className="footer-menu-link">
+                      Services
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/about-us" className="footer-menu-link">
+                      About
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/blog" className="footer-menu-link">
+                      Blog
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/contact-us" className="footer-menu-link">
+                      Contact
+                    </Link>
+                  </li>
+                  <li className="footer-menu-item">
+                    <Link to="/admin" className="footer-menu-link" style={{ color: '#E70000' }}>
+                      Admin Studio &amp; AI Blog
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="col-xl-3 col-md-6 col-12">
+              <div className="footer-widget-wrapper">
+                <h3 className="widget-title">Social Media</h3>
+                <ul className="footer-social">
+                  <li className="footer-menu-item">
+                    <a
+                      href={settings.socialLinkedin}
+                      className="footer-menu-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      LinkedIn
+                    </a>
+                  </li>
+                  <li className="footer-menu-item">
+                    <a
+                      href={settings.socialFacebook}
+                      className="footer-menu-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Facebook
+                    </a>
+                  </li>
+                  <li className="footer-menu-item">
+                    <a
+                      href={settings.socialInstagram}
+                      className="footer-menu-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Instagram
+                    </a>
+                  </li>
+                  <li className="footer-menu-item">
+                    <a
+                      href={settings.socialTiktok}
+                      className="footer-menu-link"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      TikTok
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="row footer-second-row"></div>
+        </footer>
+      </div>
+
+      {/* EXACT FIXED BUTTONS (#callBtn & #backToTopBtn) */}
+      <div className="fixed-buttons-container">
         <a
-          href={`tel:${settings.phone.replace(/\D/g, '')}`}
-          title="Call VMG NeXT"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#E70000] text-white shadow-xl shadow-[#E70000]/40 transition hover:scale-105"
+          id="callBtn"
+          href={`tel:${settings.phone.replace(/[^0-9]/g, '')}`}
+          title="Call Us"
         >
-          <Phone className="h-6 w-6" />
+          <i className="fa-solid fa-phone"></i>
+        </a>
+        <a
+          id="backToTopBtn"
+          href="#top"
+          title="Go to top"
+          className={showTopBtn ? 'show' : ''}
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        >
+          <i className="fa-solid fa-arrow-up"></i>
         </a>
       </div>
 
-      {/* Estimating Consultation Modal */}
-      <EstimatingConsultationModal />
+      {/* FLOATING ADMIN CMS & AI BLOG LAUNCHER (Bottom-Left) */}
+      {location.pathname === '/admin' ? (
+        <Link to="/" className="vmg-floating-admin-pill">
+          <i className="fa-solid fa-arrow-left" style={{ color: '#E70000' }}></i>
+          <span>Back to Live Public Site</span>
+        </Link>
+      ) : (
+        <Link to="/admin" className="vmg-floating-admin-pill">
+          <Sparkles className="h-4 w-4 text-[#E70000]" />
+          <span>
+            Admin CMS &amp; AI Blog ({team.filter((t) => t.visible).length} Team · {blogs.length}{' '}
+            Posts)
+          </span>
+        </Link>
+      )}
 
-      {/* In-App Toast Notifications */}
-      <div className="fixed bottom-5 left-5 z-[9999] flex flex-col gap-2.5">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className="flex items-center gap-3 rounded-2xl border border-white/15 bg-[#18181c] px-4 py-3 text-xs font-medium text-white shadow-2xl"
-          >
-            <CheckCircle2
-              className={`h-4 w-4 shrink-0 ${
-                t.type === 'error' ? 'text-rose-400' : t.type === 'info' ? 'text-sky-400' : 'text-emerald-400'
-              }`}
-            />
-            <span>{t.text}</span>
-            <button
-              type="button"
-              onClick={() => dismissToast(t.id)}
-              className="ml-2 text-zinc-400 hover:text-white"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
+      {/* ESTIMATING CONSULTATION MODAL */}
+      <EstimatingConsultationModal />
+    </>
   );
 }

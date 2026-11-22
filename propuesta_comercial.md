@@ -1,104 +1,114 @@
-# Propuesta Técnica y Comercial: Nueva Plataforma Digital, CMS & AI Suite — VMG NeXT Construction
+# Technical & Commercial Proposal: Next-Generation Web Platform, Team 360° CMS & AI Publishing Suite — VMG NeXT Construction
 
-**Cliente:** VMG NeXT Construction _(Melanie & Victor Galvan · Sandy, Salt Lake City & Park City, Utah)_  
-**Enfoque:** Reingeniería desde cero de `vmgnext.com` en arquitectura moderna (React + TypeScript + Cloud), Panel Admin 360° de Equipo, Estudio de Blogs con IA Auto-Publisher e Integración con Software de Estimaciones (`ocv1_...`)  
-**Infraestructura Recurrente:** **$0 USD / mes** _(Google Cloud / Firebase Spark Tier & GitHub Edge CDN)_
-
----
-
-## 1. Resumen Ejecutivo y Auditoría del Sitio Actual (`vmgnext.com`)
-
-Tras auditar a nivel de código, base de datos y servidor la instalación actual de **VMG NeXT** en WordPress 7.0 sobre SiteGround (`vmg-next-theme` v3.6.0), identificamos **5 cuellos de botella críticos** que esta nueva plataforma resuelve de raíz:
-
-1. **Vulnerabilidad Crítica de Seguridad (Inyecciones PHP):** Se detectó y limpió en el tema actual un script malicioso tipo _self-healing backdoor_ (`updater.php` inyectado en `header.php`). Al depender de PHP, WordPress y plugins como _WP File Manager_ o _Simple Custom CSS & JS_, el sitio sigue expuesto a reinfecciones. **La nueva arquitectura compilada en React + TypeScript elimina el motor PHP por completo, haciendo imposible cualquier inyección de código.**
-2. **Fricción y Errores al Actualizar el Equipo (`/team/`):** Actualmente el listado del equipo está _hardcodeado_ en HTML puro dentro de un carrusel Swiper (Página ID 242), mientras que cada perfil individual vive en una página separada con campos ACF (`team-member-template.php`). Ocultar o actualizar integrantes (como Savannah, Zachariah, Levi, Abner, Rene Villanueva o Eduardo Galvan) requiere comentar código HTML manualmente, provocando etiquetas rotas (`<!--`) y bloqueos por caché de SiteGround (`Purge SG Cache`).
-3. **Publicación Manual y Lenta de Blogs (`/blog/`):** El sitio solo cuenta con 3 artículos desde diciembre de 2025 porque redactar, maquetar y configurar SEO manualmente toma horas por publicación.
-4. **Desconexión del Software de Estimaciones (`ocv1_...`):** Los formularios actuales (_Contact Form 7_) envían correos planos sin conectarse con la API Key del software de estimaciones (`ocv1_bBAB9MUQVzEagJKFYOmhIhwFItKDx3L0vvZlKgDTEs8=`) en el botón _"Request Consultation"_.
-5. **Costos Fijos de Hosting y Mantenimiento:** Renta anual de servidor SiteGround (~$360 – $600 USD/año) más horas recurrentes de soporte técnico para cambios básicos de texto, fotos o personal.
+**Client:** VMG NeXT Construction (Melanie & Victor Galvan)  
+**Location:** 7370 S Creek Rd. STE 204, Sandy, Utah 84093 (Salt Lake City & Park City Markets)  
+**Live Application Demo:** https://andrescorderor.github.io/vmg-next-platform/  
+**Interactive Proposal Deck:** https://andrescorderor.github.io/propuesta-vmg-next/  
+**Recurring Hosting & Database Cost:** **$0 USD / month** *(Eliminates SiteGround Hosting fees)*
 
 ---
 
-## 2. Réplica Visual 1:1 Mejorada y Nuevas Capacidades Incluidas
+## 1. Executive Summary & Deep Audit of Current WordPress Site (`vmgnext.com`)
 
-La nueva aplicación replica fielmente la identidad visual corporativa de **VMG NeXT** (negro carbón `#121214`, rojo vibrante `#E70000`, tipografías _Sora_, _DM Sans_ y _JetBrains Mono_) e incluye todas las páginas y activos reales auditados:
+A comprehensive technical and operational audit of **vmgnext.com** revealed four critical bottlenecks that limit marketing agility, expose the company to security incidents, and generate recurring hosting and maintenance expenses:
 
-- **Home & Services (`/`, `/services`):** Hero con video de fondo responsivo (`Vmg-Next-WebsiteV4-1920X640.mp4`), métricas animadas (**220+ Proyectos**, **20+ Años**, **100% Satisfacción**), las 6 divisiones activas (_Tilt-Up, Slabs, Cast-In-Place, Educational Facilities, Commercial Construction, Water Treatment_) más _High-End Homes_ activable en 1 clic desde `/admin`, y carrusel continuo con los 8 testimonios reales (_Brandon M. Dawson, Tom Widener, Bora Erbilen, Bank OZK_, etc.).
-- **Projects Portfolio Interactivo (`/projects`):** Los 8 proyectos emblemáticos (_Tow/Plow Manila, Tow/Plow Tabiona, Promontory Place, K&B Apartments, Timpview High School $5M–$5.5M, Ogden 5 Light Bay, Canyon Creek Fairfield Inn y The Grove Buildings 1 & 2_) con **nuevo filtro instantáneo por sector**, rangos de presupuesto, pies cuadrados (`SF`), General Contractor (`GC`), carrusel por tarjeta y **visor Lightbox a pantalla completa**.
-- **About Us & Restoration Division (`/about-us`, `/restoration`):** Misión, Visión ($125M / 360 integrantes), los 6 valores corporativos y la galería interactiva filtrable con las **24 fotografías reales de restauración estructural** (_Foundation Wall Repairs, Concrete Pourbacks, Concrete Additions, Wood Decks_).
-- **Careers inspirado en Cardone Ventures (`/careers`):** Hero con video, KPIs de cultura (_"We win together"_), 6 bloques de beneficios, vacantes abiertas con marcado automático `JobPosting` para **Google Jobs**, red directa de talento con Yolanda Galvan (`yolanda@vmgnext.com`) y los **3 testimonios reales en video vertical** (_Valerie, Victor Galvan y Scott Longhurst_).
-
----
-
-## 3. Estudio de Blogs con IA & Auto-Publisher (`/admin` → AI Blog Studio)
-
-- **Generación y Publicación en 1 Clic desde un Prompt:** Desde el panel `/admin`, Melanie o Sophia Galvan solo escriben una instrucción o tema (ej. _"Why Tilt-Up Concrete Reduces Winter Construction Schedules in Salt Lake City"_), eligen la categoría, el tono editorial y las palabras clave SEO.
-- **Redacción Técnica y Publicación Automática:** El motor de IA redacta el artículo completo con estructura jerárquica (`H2`, `H3`, listas técnicas, citas ejecutivas de liderazgo, llamado a la acción hacia estimaciones), asigna fotografía de portada optimizada, genera el `slug` amigable y **lo publica automáticamente en `/blog`** listo para indexarse en Google.
-- **Compatibilidad Dual ($0 USD):** Funciona de inmediato con el motor de IA constructivo integrado sin costo y permite conectar una llave gratuita de **Google Gemini API** desde `/admin`.
+1. **Critical PHP Security Vulnerability (`updater.php` Backdoor):**  
+   The current WordPress environment suffered a self-healing PHP backdoor injection inside `wp-content/themes/vmg-next-theme/header.php` (`include_once 'updater.php'`). By migrating to a compiled **React 19 + TypeScript** architecture with **0% server-side PHP execution**, PHP malware and plugin exploits become **100% impossible**.
+2. **High Operational Friction on Team Directory (`/team/`):**  
+   In the current WordPress setup, team cards are hardcoded inside raw Swiper HTML on Page ID `242`, while individual member bios live on separate ACF pages. Hiding or adding personnel (*Savannah, Zachariah, Levi, Valerie, Abner Palacios, Sophia Galvan, Rene Villanueva, Eduardo Galvan*) currently requires manually commenting out HTML blocks—which has previously broken the carousel layout—and manually flushing `SG Cache`.
+3. **Slow & Manual Blog Publishing (`/blog/`):**  
+   Only 3 blog posts have been published since December 2025 due to the friction of manual drafting, formatting, and WordPress block editing.
+4. **Unnecessary Recurring Hosting Costs:**  
+   VMG NeXT currently pays annual managed WordPress hosting fees on SiteGround (~$360–$600 USD/year) plus developer intervention for routine content updates. Our modern cloud architecture runs on **Google Firebase Spark + GitHub Global Edge CDN at $0 USD/month perpetually**.
 
 ---
 
-## 4. Gestor 360° de Team Members (`/admin` → Team Members)
+## 2. Exact 1:1 Visual Replica & Enhanced Public Experience
 
-- **Directorio Visual Completo (18 Activos + 4 Ocultos/Archivados):** Incluye ya cargados y actualizados a **Victor Galvan, Yolanda Galvan, Mayra Gonzalez, Scott Longhurst, Abner Palacios** (_Director of Special Projects_), **Sophia Galvan** (_Marketing Director_), **Rene Villanueva** (_Lead Estimator_), **Eduardo Galvan** (_Assistant Project Manager_) y todo el equipo de estimación y operaciones.
-- **Switch de Visibilidad en 1 Clic (Visible / Hidden):** Los perfiles de _Savannah, Zachariah Maynard, Levi Palacios y Valerie Diaz_ se conservan respaldados en la base de datos como `Hidden`. Si el cliente desea ocultarlos o reactivarlos, basta con presionar un botón sin comentar código HTML ni romper el sitio.
-- **Edición Total de Fotos y Biografías:** Carga directa de **Foto de Tarjeta (`/team`)** y **Retrato de Detalle (`/team/:slug`)** desde la computadora (con compresión automática WebP en navegador), edición de nombre, puesto, departamento, biografía en 2 párrafos y reordenamiento con flechas (`↑` / `↓`).
+The new platform preserves **100% of VMG NeXT's original visual identity, typography (`BBH Sans Bartle`, `Atkinson Hyperlegible Next`, `Space Grotesk`, `DM Sans`, `Sora`), Bootstrap 5 grid, Swiper 11 carousels, and stylesheets**—ensuring it looks at minimum identical to the current live site while running 10x faster:
 
----
-
-## 5. Integración con Software de Estimaciones (`ocv1_...`) y Captación de Leads
-
-- **Portal _"Request Consultation"_ Conectado:** El botón principal de la barra de navegación y de cada servicio/proyecto abre el modal de preconstrucción conectado a la API Key `ocv1_bBAB9MUQVzEagJKFYOmhIhwFItKDx3L0vvZlKgDTEs8=`.
-- **Captura Calificada + Bandeja CRM en `/admin`:** Recopila nombre, empresa/GC, correo, teléfono, tipo de servicio, pies cuadrados estimados (`SF`), rango presupuestal, ubicación en Utah y fecha de movilización, enviando el payload al sistema de estimaciones y guardando el respaldo en `/admin` con control de estatus (`New`, `In Estimating`, `Proposal Sent`).
+- **Home (`/`) & Services (`/services`):** Responsive desktop/mobile hero videos, animated counters (`220+ Projects`, `20 Years of Expertise`, `100% Customer Satisfaction`), continuous Swiper service cards (*Tilt-Up, Slabs, Cast-In-Place, Educational Facilities, Commercial Construction, Water Treatment*, plus *High-End Homes* toggleable in 1 click), dual continuous testimonial marquees (*Tom Widener, Brandon M. Dawson, Bora Erbilen, Randy Barnhill, Luis F. Bedoya, Sean Meder*), and interactive Leaflet CartoDB map.
+- **Project Portfolio (`/projects`):** All 8 featured commercial concrete projects (*Tow/Plow Manila, Tow/Plow Tabiona, Promontory Place Apartments, K&B Apartments, Timpview High School $5M–$5.5M, Ogden 5 Light Bay, Canyon Creek Fairfield Inn & Suites, and The Grove Buildings 1 & 2*) with concrete scope budgets (`$30K – $5.5M`), square footage (`1,322 – 277,000 SF`), General Contractor credits, and a **full-screen multi-photo Lightbox gallery (130+ high-res photos)**.
+- **About Us (`/about-us`) & Restoration Division (`/restoration`):** Brandon M. Dawson executive endorsement card, Mission & Vision (`$125M platform / 360 team members`), 6 Core Values, and an interactive filterable Restoration Gallery with all **29 real structural restoration project photos** (*Wall Repairs, Concrete Pourbacks, Concrete Additions, Wood Decks*).
+- **Careers Portal (`/careers`):** Inspired by Cardone Ventures, featuring video hero, culture KPIs, 6 employee benefit cards, live job postings with **Google Jobs `JobPosting` Schema.org JSON-LD**, direct resume dispatch to Yolanda Galvan (`yolanda@vmgnext.com`), and the **3 vertical team video testimonials (*Valerie, Victor, and Scott*)**.
 
 ---
 
-## 6. Arquitectura Tecnológica & Reducción de Costos a $0 USD / mes
+## 3. AI Blog Studio & One-Click Auto-Publisher (`/admin` → AI Blog Studio)
 
-- **Frontend & Compilación:** React 19 + Vite + TypeScript + Tailwind CSS (bundle estático ultrarrápido con calificación 98–100 en Google PageSpeed).
-- **Base de Datos, Auth & Almacenamiento Multimedia ($0 USD):** Google Cloud Firestore + Firebase Auth (Plan Spark gratuito perpetuo: 50,000 lecturas/día, 20,000 escrituras/día y 1 GB libre). La compresión automática en navegador (~150 KB por imagen) permite almacenar más de 2,500 fotografías sin pagar servidores ni Cloud Storage.
-- **Hosting, CI/CD & SSL ($0 USD):** Despliegue automatizado vía GitHub (`https://github.com/andrescorderor/vmg-next-platform`) con CDN global y certificado SSL perpetuo sin costo mensual.
+Built directly into the private `/admin` dashboard so Melanie or Sophia can publish high-ranking SEO content in under 30 seconds:
 
----
-
-## 7. Metodología de Entrega y Cronograma (4 Semanas)
-
-| Fase | Duración | Entregables Clave |
-| :--- | :---: | :--- |
-| **Fase 1: Migración Base y Réplica Visual 1:1** | 1 semana | Maquetación completa de Home, Services, About, Contact, Legal y activos multimedia de `vmgnext.com`. |
-| **Fase 2: Directorio Team 360° y Portafolios** | 1 semana | Módulo `/team` y perfiles individuales dinámicos, `/projects` con Lightbox y `/restoration` filtrable. |
-| **Fase 3: AI Blog Studio, Careers & API Leads** | 1 semana | Panel `/admin` con generador de blogs con IA auto-publicable, portal `/careers` y conexión API `ocv1_...`. |
-| **Fase 4: Pruebas, SEO Redirects y Go-Live** | 1 semana | Conservación de URLs para SEO, pruebas en móvil/escritorio, cambio de DNS en dominio `vmgnext.com` y entrega. |
-| **TOTAL** | **4 semanas** | **Plataforma productiva llave en mano con $0 USD/mes en servidores.** |
-
-- **Garantía Post-Lanzamiento:** **3 semanas** de soporte técnico, capacitación para Melanie/Sophia y ajustes menores incluidos sin costo adicional.
+- **Prompt-to-Published Article in 1 Click:** Enter a short prompt or topic (e.g., *"Why Tilt-Up Concrete Reduces Winter Construction Schedules for Salt Lake City Warehouses"*), select target tone and Utah SEO keywords, and click **"Generate & Auto-Publish with AI"**.
+- **Automated Executive Formatting:** The AI engine drafts a comprehensive, technically accurate commercial concrete article complete with `H2/H3` headings, structural bullet points, an executive pull-quote, estimated read time, SEO slug, and cover photo—and **publishes it live to `/blog` immediately**.
+- **Dual $0 Engine:** Includes a built-in construction-specialized AI generator out of the box ($0 cost) plus optional support for a free Google Gemini API key.
 
 ---
 
-## 8. Modelo Comercial, Inversión Modular y Condiciones
+## 4. Team Members 360° Manager (`/admin` → Team Members)
 
-### A. Plataforma Web Base + Gestor Team 360° & AI Blog Auto-Publisher _(Mínimo Requerido)_
+Eliminates HTML editing forever. Melanie and Victor have full visual control over the leadership and estimating directory:
 
-| Concepto | Alcance Técnico | Inversión |
+- **22 Pre-Loaded Profiles (18 Active + 4 Hidden):** Includes *Victor Galvan (CEO), Yolanda Galvan, Mayra Gonzalez, Scott Longhurst, Abner Palacios (Director of Special Projects), Archer Wagner, Johana Gutiérrez, Sophia Galvan (Marketing Director), Rene Villanueva (Lead Estimator), Eduardo Galvan (Assistant Project Manager), Lisamara Garcia, Luis Alonso, Erick Patoni-Morato, Nahomy Sinclair, Allan Saenz, Alexander, Scarlet Watson, and Darwing Grijalba*.
+- **1-Click Hide / Show Toggle:** Former or paused profiles (*Savannah, Zachariah Maynard, Levi Palacios, Valerie Diaz*) are preserved in the database as `Hidden` and can be reactivated or archived with a single switch—never touching HTML comments again.
+- **Photo & Biography Editor:** Upload both the **Card Preview Photo** and the **High-Res Bio Detail Portrait** directly from any computer (automatically compressed to lightweight WebP in the browser), edit two-paragraph biographies, update titles/departments, and reorder display priority with `↑ / ↓` buttons.
+
+---
+
+## 5. Estimating Software API Integration (`ocv1_...`) & Lead CRM
+
+- **"Request Consultation" Connected to Estimating Pipeline:** Every *"Request Consultation"* button and contact form captures the prospect's contact details, concrete scope (*Tilt-Up, Slabs, Cast-In-Place, Restoration*), estimated square footage (`SF`), budget tier, and Utah location.
+- **Direct API Dispatch + Admin Backup:** Payloads are formatted for VMG NeXT's Estimating Software API Key (`ocv1_bBAB9MUQVzEagJKFYOmhIhwFItKDx3L0vvZlKgDTEs8=`) and simultaneously logged in the `/admin` Lead CRM for tracking by Rene Villanueva and the estimating desk.
+
+---
+
+## 6. Cloud Architecture & $0/Month Infrastructure
+
+| Layer | Technology | Monthly Cost | Benefit for VMG NeXT |
+| :--- | :--- | :---: | :--- |
+| **Frontend & UI** | React 19 + TypeScript + Vite + Original VMG CSS/Bootstrap 5 | **$0 USD** | 1:1 visual fidelity, instant page loads, 0% PHP vulnerabilities |
+| **Database & Sync** | Google Cloud Firestore (Spark Tier) + LocalStorage Persistence | **$0 USD** | 50,000 free reads/day; real-time updates for Team, Blogs & Leads |
+| **Media Optimization** | In-Browser Canvas WebP Compression (~150 KB/photo) | **$0 USD** | Stores 2,500+ high-res team & project photos at zero cloud cost |
+| **Hosting & SSL** | GitHub Repository + Global Edge CDN + Automated HTTPS | **$0 USD** | Replaces ~$360–$600/yr SiteGround hosting bill permanently |
+
+---
+
+## 7. Delivery Methodology & 4-Week Timeline
+
+Because the functional application and 1:1 migration are already built and deployed in our live demo environment, full production rollout on `vmgnext.com` is completed in **4 weeks**:
+
+| Phase | Duration | Key Deliverables | Status |
+| :--- | :---: | :--- | :---: |
+| **Phase 1: 1:1 Visual Replica & Core Pages** | Week 1 | Full migration of Home, Services, About, Contact, Legal, hero videos, and original stylesheets. | **Completed in Live Demo** |
+| **Phase 2: Team 360° CMS & Project Galleries** | Week 2 | Dynamic `/team` carousel & 22 bio pages, `/projects` with 130+ photo Lightbox, and `/restoration` gallery. | **Completed in Live Demo** |
+| **Phase 3: AI Blog Studio, Careers & Estimating API** | Week 3 | `/admin` control center, AI Prompt-to-Blog auto-publisher, `/careers` portal, and `ocv1_...` API integration. | **Week 3** |
+| **Phase 4: QA, SEO URL Preservation & Go-Live** | Week 4 | URL redirect mapping to protect Google rankings, custom domain DNS switch on `vmgnext.com`, and training. | **Week 4 · Go-Live** |
+
+- **Post-Launch Warranty:** Includes **3 weeks of dedicated post-launch technical support**, minor adjustments, and a live training session for Melanie and Sophia Galvan.
+
+---
+
+## 8. Commercial Model, Modular Investment & Payment Terms
+
+### A. Base Platform + Team 360° CMS + AI Blog Auto-Publisher *(Required Core)*
+
+| Package | Technical Scope Included | One-Time Investment |
 | :--- | :--- | :---: |
-| **Plataforma Web Base + Team CMS + AI Blog Studio** | Réplica 1:1 mejorada de `vmgnext.com` (Home, Services, About, Team + Perfiles individuales, Blog, Contact, Legal), arquitectura inmune a malware PHP, Hosting Cloud ($0 USD/mes), **Gestor 360° de Team Members** (fotos, biografías y ocultar/mostrar en 1 clic) y **AI Blog Studio** (redacción y autopublicación SEO desde un prompt). | **$1,450 USD** |
+| **Base Web Platform + Team 360° CMS + AI Blog Studio** | Exact 1:1 visual replica of `vmgnext.com`, PHP-immune React/TypeScript architecture, $0/month Cloud Hosting setup, **Team Members 360° Manager** (photos, bios, 1-click hide/show, reordering), and **AI Blog Studio** (prompt-to-published SEO articles in 1 click). | **$1,450 USD** |
 
-### B. Módulos Configurables Opcionales _(para Autonomía y Automatización Total)_
+### B. Optional Configurable Modules *(For Full Autonomy & Commercial Automation)*
 
-| Módulo Adicional | Alcance Técnico | Costo por Módulo |
+| Optional Module | Technical Scope Included | Module Price |
 | :--- | :--- | :---: |
-| **1. Gestor Dinámico de Proyectos & Galería Restoration** | Alta, edición, filtros por mercado, rangos de presupuesto (`$30K–$5.5M`), `SF`, `GC`, visor Lightbox y galería Restoration desde `/admin`. | +$350 USD |
-| **2. Integración API de Estimaciones (`ocv1_...`) & CRM** | Conexión del botón _"Request Consultation"_ con software de estimaciones vía API Key, modal interactivo de alcance (`SF`) y CRM de prospectos en `/admin`. | +$280 USD |
-| **3. Portal Dinámico Careers ATS & Google Jobs Schema** | Diseño inspirado en Cardone Ventures, testimonios en video vertical, gestión de vacantes en `/admin` y marcado `JobPosting` para Google Jobs. | +$220 USD |
-| **SUBTOTAL MÓDULOS OPCIONALES** | **Automatización comercial, portafolios y reclutamiento completo** | **+$850 USD** |
+| **1. Dynamic Projects & Restoration Gallery Manager** | Add, edit, reorder, and manage commercial concrete projects (`$30K–$5.5M`, `SF`, `GC`, multi-photo Lightbox) and Restoration gallery photos directly in `/admin`. | **+$350 USD** |
+| **2. Estimating Software API Integration (`ocv1_...`) & Lead CRM** | Connect all *"Request Consultation"* buttons and forms to VMG NeXT's Estimating Software API Key (`ocv1_...`) plus the `/admin` Lead CRM pipeline. | **+$280 USD** |
+| **3. Dynamic Careers ATS Portal & Google Jobs Schema** | Cardone-inspired `/careers` portal with vertical video testimonials, `/admin` job posting manager, and automated `JobPosting` Schema.org JSON-LD. | **+$220 USD** |
+| **OPTIONAL MODULES SUBTOTAL** | **Full portfolio, estimating pipeline, and recruitment automation** | **+$850 USD** |
 
-### Inversión Total y Retorno (ROI)
+### Total Investment Summary & Payment Schedule
 
-- **Proyecto Completo (Autonomía y Automatización Total):** **$2,300 USD** _(Pago único)_
-- **Versión Esencial (Plataforma Base + Team 360° + AI Blog Studio):** **$1,450 USD** _(Pago único — se puede activar o descartar cualquier módulo opcional según las prioridades del cliente)_.
-- **Costo Mensual de Servidores, Base de Datos y SSL:** **$0 USD / mes** _(Ahorro directo de ~$360 – $600 USD/año frente a SiteGround WordPress + ahorro de ~$1,500+ USD/año en tickets de mantenimiento para cambios de personal y blogs)_.
-- **Dominio Web (`vmgnext.com`):** El cliente conserva su dominio actual sin costo adicional de migración.
-
-### Esquema de Pagos
-
-- **30% Anticipo** al autorizar el inicio del proyecto _($690 USD en versión completa / $435 USD en versión esencial)_.
-- **70% Contra Entrega** y validación formal de funcionamiento en el dominio definitivo _($1,610 USD en versión completa / $1,015 USD en versión esencial)_.
+- **Full Turnkey Suite (Base Platform + All 3 Optional Modules):** **$2,300 USD** *(One-time payment)*
+- **Essential Core Package (Base Platform + Team 360° CMS + AI Blog Studio):** **$1,450 USD** *(One-time payment)*
+- **Monthly Server / Hosting / Database Fee:** **$0 USD / month** *(Saves ~$360–$600 USD/year in SiteGround fees)*
+- **Payment Terms:**
+  - **30% Deposit** upon project kickoff (**$690 USD** Full Suite / **$435 USD** Essential Core).
+  - **70% Upon Final Delivery & Go-Live** on `vmgnext.com` (**$1,610 USD** Full Suite / **$1,015 USD** Essential Core).

@@ -136,7 +136,7 @@ export function AdminDashboard() {
     );
 
   return (
-    <div className="min-h-screen bg-[#f4f4f6] pb-20 text-[#121214]">
+    <div className="vmg-admin-scope min-h-screen bg-[#f4f4f6] pb-20 text-[#121214]">
       {/* Top Executive Admin Banner */}
       <div className="border-b border-zinc-200 bg-[#121214] py-8 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

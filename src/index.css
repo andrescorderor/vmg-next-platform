@@ -1,24 +1,32 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 
-:root {
-  --vmg-red: #E70000;
-  --vmg-red-dark: #b80000;
-  --vmg-charcoal: #121214;
-  --vmg-surface: #18181c;
-  --vmg-card-dark: #1e1e24;
-  --vmg-light: #f7f7f8;
+/* Scoped resets for Admin CMS & Estimating Modal so Tailwind utilities render cleanly without Bootstrap overrides */
+.vmg-admin-scope {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
+.vmg-admin-scope a {
+  text-decoration: none;
 }
 
-html {
-  scroll-behavior: smooth;
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+.vmg-admin-scope ul,
+.vmg-admin-scope ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-h1, h2, h3, h4, .font-heading {
+.vmg-admin-scope h1,
+.vmg-admin-scope h2,
+.vmg-admin-scope h3,
+.vmg-admin-scope h4,
+.vmg-admin-scope p {
+  margin: 0;
+}
+
+.font-heading {
   font-family: 'Sora', 'Space Grotesk', sans-serif;
 }
 
@@ -26,83 +34,112 @@ h1, h2, h3, h4, .font-heading {
   font-family: 'JetBrains Mono', monospace;
 }
 
-a, button, label, select, summary, [role="button"] {
-  cursor: pointer !important;
-}
-
-/* Marquee animation for testimonials */
+/* Smooth continuous marquee for testimonials & services in React */
 @keyframes marqueeLeft {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes marqueeRight {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0%); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
 }
 
-.animate-marquee-left {
+.vmg-marquee-track-left {
   display: flex;
   width: max-content;
-  animation: marqueeLeft 48s linear infinite;
+  animation: marqueeLeft 42s linear infinite;
 }
 
-.animate-marquee-right {
-  display: flex;
-  width: max-content;
-  animation: marqueeRight 52s linear infinite;
-}
-
-.animate-marquee-left:hover,
-.animate-marquee-right:hover {
+.vmg-marquee-track-left:hover {
   animation-play-state: paused;
 }
 
-/* Custom prose for blog articles */
-.vmg-prose h2 {
+.vmg-marquee-track-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 44s linear infinite;
+}
+
+.vmg-marquee-track-right:hover {
+  animation-play-state: paused;
+}
+
+.vmg-services-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 34s linear infinite;
+}
+
+.vmg-services-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Ensure header navigation & buttons align cleanly on desktop and mobile */
+.header-book-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-estimate-btn {
+  background-color: #E70000 !important;
+  color: #ffffff !important;
+  border: 1px solid #E70000 !important;
+  border-radius: 50px !important;
+  padding: 10px 20px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.header-estimate-btn:hover {
+  background-color: #ffffff !important;
+  color: #181818 !important;
+  border-color: #ffffff !important;
+}
+
+/* Floating Admin Studio Launcher Pill */
+.vmg-floating-admin-pill {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9980;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(18, 18, 20, 0.94);
+  color: #ffffff !important;
+  border: 1px solid rgba(231, 0, 0, 0.65);
+  border-radius: 999px;
+  padding: 10px 18px;
   font-family: 'Sora', sans-serif;
-  font-size: 1.65rem;
+  font-size: 12px;
   font-weight: 700;
-  color: #121214;
-  margin-top: 2rem;
-  margin-bottom: 0.85rem;
-  line-height: 1.25;
+  text-decoration: none !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
 }
 
-.vmg-prose h3 {
-  font-family: 'Sora', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #18181c;
-  margin-top: 1.5rem;
-  margin-bottom: 0.65rem;
-}
-
-.vmg-prose p {
-  font-size: 1.05rem;
-  line-height: 1.78;
-  color: #3a3d45;
-  margin-bottom: 1.15rem;
-}
-
-.vmg-prose ul {
-  list-style: disc;
-  padding-left: 1.5rem;
-  margin-bottom: 1.25rem;
-  color: #3a3d45;
-}
-
-.vmg-prose li {
-  margin-bottom: 0.5rem;
-  line-height: 1.65;
-}
-
-.vmg-prose blockquote {
-  border-left: 4px solid #E70000;
-  background: #fdf2f2;
-  padding: 1rem 1.25rem;
-  border-radius: 0 0.75rem 0.75rem 0;
-  font-style: italic;
-  color: #18181c;
-  margin: 1.5rem 0;
+.vmg-floating-admin-pill:hover {
+  background: #E70000;
+  color: #ffffff !important;
+  transform: translateY(-2px);
 }
