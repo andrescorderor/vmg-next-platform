@@ -150,11 +150,21 @@ const FULL_PROJECT_GALLERIES: Record<string, string[]> = {
   ],
 };
 
+function getShortServiceTitle(title: string) {
+  if (title.toLowerCase().includes('tilt-up')) return 'Tilt-Up';
+  if (title.toLowerCase().includes('slab')) return 'Slabs';
+  if (title.toLowerCase().includes('cast')) return 'Cast In Place';
+  if (title.toLowerCase().includes('educational')) return 'Educational Facilities';
+  if (title.toLowerCase().includes('commercial')) return 'Commercial Construction';
+  if (title.toLowerCase().includes('water')) return 'Water Treatment';
+  return title;
+}
+
 /* ============================================================================
    1. HOME PAGE (Exact 1:1 DOM & CSS from https://vmgnext.com/)
    ============================================================================ */
 export function HomePage() {
-  const { settings, services, openEstimateModal } = useVmg();
+  const { settings, services } = useVmg();
   const visibleServices = services
     .filter((s) => s.visible)
     .sort((a, b) => a.orderIndex - b.orderIndex);
@@ -342,17 +352,7 @@ export function HomePage() {
                     Concrete Contractor
                   </h2>
                 </div>
-                <div className="btn-wrapper" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => openEstimateModal()}
-                    className="global-btn"
-                    style={{ border: 'none', cursor: 'pointer' }}
-                  >
-                    <span className="btn-text-wrapper">
-                      <span className="btn-text">Request Consultation</span>
-                    </span>
-                  </button>
+                <div className="btn-wrapper">
                   <Link to="/contact-us" className="global-btn-white-metrics">
                     <span className="btn-text-wrapper">
                       <span className="btn-text">Schedule a call</span>
@@ -482,18 +482,8 @@ export function HomePage() {
                       <div className="arrow-background-bottom"></div>
                     </div>
                     <div className="service-box-content">
-                      <h4 className="service-box-title">
-                        {srv.title.replace(' Construction', '').replace('Structural Concrete ', '').replace(' Concrete', '').replace(' Facilities', '') === 'Educational'
-                          ? 'Educational Facilities'
-                          : srv.title.replace(' Construction', '') === 'Commercial'
-                          ? 'Commercial Construction'
-                          : srv.title.replace(' Construction', '').replace('Structural Concrete ', '').replace(' Concrete', '').replace(' Facilities', '')}
-                      </h4>
-                      <img
-                        src={srv.previewImage}
-                        alt={srv.title}
-                        className="service-box-img"
-                      />
+                      <h4 className="service-box-title">{getShortServiceTitle(srv.title)}</h4>
+                      <img src={srv.previewImage} alt={srv.title} className="service-box-img" />
                     </div>
                   </div>
                 </Link>
@@ -600,10 +590,46 @@ export function HomePage() {
    2. SERVICES PAGE (Exact 1:1 DOM & CSS from https://vmgnext.com/services/)
    ============================================================================ */
 export function ServicesPage() {
-  const { services, openEstimateModal } = useVmg();
+  const { services } = useVmg();
   const visibleServices = services
     .filter((s) => s.visible)
     .sort((a, b) => a.orderIndex - b.orderIndex);
+
+  const trustTitleText =
+    'From commercial construction in Salt Lake City to custom projects in Park City, we are passionate about building the future of Utah.';
+  const [visibleLetters, setVisibleLetters] = useState(0);
+  const trustTitleRef = useRef<HTMLHeadingElement | null>(null);
+
+  useEffect(() => {
+    let started = false;
+    let interval: any;
+    const el = trustTitleRef.current;
+    if (!el) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !started) {
+          started = true;
+          let count = 0;
+          interval = setInterval(() => {
+            count += 2;
+            setVisibleLetters(count);
+            if (count >= trustTitleText.length) {
+              clearInterval(interval);
+            }
+          }, 30);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      if (interval) clearInterval(interval);
+    };
+  }, [trustTitleText.length]);
 
   return (
     <div>
@@ -623,7 +649,7 @@ export function ServicesPage() {
         </video>
       </div>
 
-      {/* 2. SOCIAL TRUST BANNER */}
+      {/* 2. SOCIAL TRUST BANNER WITH TYPING LETTER ANIMATION */}
       <div className="section-social-trust">
         <div className="container">
           <div className="row first-row-social-trust">
@@ -639,9 +665,15 @@ export function ServicesPage() {
             </div>
             <div className="col-xl-8">
               <div className="social-trust-content-wrapper">
-                <h2 className="social-trust-title">
-                  From commercial construction in Salt Lake City to custom projects in Park City, we
-                  are passionate about building the future of Utah.
+                <h2 className="social-trust-title" ref={trustTitleRef}>
+                  {trustTitleText.split('').map((char, idx) => (
+                    <span
+                      key={idx}
+                      className={`letter ${idx < visibleLetters ? 'letter-visible' : ''}`}
+                    >
+                      {char}
+                    </span>
+                  ))}
                 </h2>
               </div>
             </div>
@@ -649,7 +681,7 @@ export function ServicesPage() {
         </div>
       </div>
 
-      {/* 3. MAIN SERVICES CONTENT */}
+      {/* 3. MAIN SERVICES CONTENT (Exact 1:1 Alternating .service-card Layout) */}
       <div className="section-services-main-content">
         <div className="container">
           <div className="row services-title-margin">
@@ -676,7 +708,11 @@ export function ServicesPage() {
                     )}
                     <div className="col-xxl-6 col-12">
                       <div className="service-content-wrapper">
-                        <h3 className="service-title">{srv.title}</h3>
+                        <h3 className="service-title">
+                          {getShortServiceTitle(srv.title) === 'Water Treatment'
+                            ? 'Water Treatment Facilities'
+                            : getShortServiceTitle(srv.title)}
+                        </h3>
                         <p className="service-para">{srv.fullDesc}</p>
                         <ul className="service-bullet-points">
                           {srv.bullets.map((bullet, bIdx) => (
@@ -693,18 +729,6 @@ export function ServicesPage() {
                             </li>
                           ))}
                         </ul>
-                        <div className="btn-wrapper" style={{ marginTop: '28px' }}>
-                          <button
-                            type="button"
-                            onClick={() => openEstimateModal(srv.title)}
-                            className="global-btn"
-                            style={{ border: 'none', cursor: 'pointer' }}
-                          >
-                            <span className="btn-text-wrapper">
-                              <span className="btn-text">Request Consultation</span>
-                            </span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                     {!imageLeft && (
@@ -729,13 +753,134 @@ export function ServicesPage() {
 /* ============================================================================
    3. PROJECTS PAGE (Exact 1:1 DOM & CSS from https://vmgnext.com/projects/)
    ============================================================================ */
+function ProjectCardItem({
+  prj,
+  imgs,
+  onOpenGallery,
+}: {
+  prj: ProjectItem;
+  imgs: string[];
+  onOpenGallery: (prj: ProjectItem, idx: number) => void;
+}) {
+  const swiperRef = useRef<HTMLDivElement | null>(null);
+  const nextRef = useRef<HTMLDivElement | null>(null);
+  const prevRef = useRef<HTMLDivElement | null>(null);
+  const pagRef = useRef<HTMLDivElement | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    let instance: any = null;
+    let timer: any;
+
+    const initCardSwiper = () => {
+      if (!window.Swiper) {
+        timer = setTimeout(initCardSwiper, 200);
+        return;
+      }
+      if (swiperRef.current) {
+        instance = new window.Swiper(swiperRef.current, {
+          slidesPerView: 1,
+          loop: imgs.length > 1,
+          observer: true,
+          observeParents: true,
+          grabCursor: imgs.length > 1,
+          autoplay:
+            imgs.length > 1
+              ? {
+                  delay: 3500,
+                  disableOnInteraction: false,
+                }
+              : false,
+          pagination: {
+            el: pagRef.current,
+            clickable: true,
+          },
+          navigation: {
+            nextEl: nextRef.current,
+            prevEl: prevRef.current,
+          },
+          on: {
+            slideChange: function (sw: any) {
+              setActiveSlide(sw.realIndex ?? sw.activeIndex ?? 0);
+            },
+          },
+        });
+      }
+    };
+
+    initCardSwiper();
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (instance) {
+        try {
+          instance.destroy(true, true);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [imgs.length]);
+
+  return (
+    <div className="col-lg-6 col-12">
+      <div className="project-card">
+        <div className="project-card-image-box">
+          <span className="project-number-badge">{prj.number}</span>
+          <span className="project-market-chip">{prj.market}</span>
+
+          <div className="swiper project-swiper" ref={swiperRef}>
+            <div className="swiper-wrapper">
+              {imgs.map((imgUrl, idx) => (
+                <div className="swiper-slide" key={idx}>
+                  <img
+                    src={imgUrl}
+                    alt={`${prj.name} - Photo ${idx + 1}`}
+                    className="project-img"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="swiper-button-next" ref={nextRef}></div>
+            <div className="swiper-button-prev" ref={prevRef}></div>
+            <div className="swiper-pagination" ref={pagRef}></div>
+          </div>
+
+          <button
+            type="button"
+            className="project-expand-gallery-btn"
+            onClick={() => onOpenGallery(prj, activeSlide)}
+            aria-label="Expand project gallery"
+          >
+            <i className="fa-solid fa-expand"></i> Gallery ({imgs.length})
+          </button>
+        </div>
+
+        <div className="project-card-body">
+          <div className="project-title-row">
+            <h3 className="project-name">{prj.name}</h3>
+            <span className="project-price-tag">{prj.priceRange}</span>
+          </div>
+          <div className="project-meta-chips">
+            <span>
+              <i className="fa-solid fa-hard-hat"></i> GC: {prj.gc}
+            </span>
+            <span>
+              <i className="fa-solid fa-ruler-square"></i> {prj.sqft}
+            </span>
+          </div>
+          <p className="project-description">{prj.description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProjectsPage() {
-  const { projects, openEstimateModal } = useVmg();
+  const { projects } = useVmg();
   const visibleProjects = projects
     .filter((p) => p.visible)
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
-  const [photoIdxMap, setPhotoIdxMap] = useState<Record<string, number>>({});
   const [lightboxProject, setLightboxProject] = useState<ProjectItem | null>(null);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState(0);
@@ -744,14 +889,6 @@ export function ProjectsPage() {
     const full = FULL_PROJECT_GALLERIES[prj.id];
     if (full && full.length >= prj.photos.length) return full;
     return prj.photos;
-  };
-
-  const getPhotoIdx = (id: string) => photoIdxMap[id] ?? 0;
-  const stepPhoto = (prj: ProjectItem, delta: number) => {
-    const imgs = getProjectImages(prj);
-    const curr = getPhotoIdx(prj.id);
-    const next = (curr + delta + imgs.length) % imgs.length;
-    setPhotoIdxMap((prev) => ({ ...prev, [prj.id]: next }));
   };
 
   const openGalleryModal = (prj: ProjectItem, startIdx = 0) => {
@@ -766,6 +903,19 @@ export function ProjectsPage() {
     setLightboxProject(null);
     document.body.style.overflow = '';
   };
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxProject) return;
+      if (e.key === 'Escape') closeGalleryModal();
+      if (e.key === 'ArrowLeft')
+        setLightboxIdx((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+      if (e.key === 'ArrowRight')
+        setLightboxIdx((prev) => (prev + 1) % lightboxImages.length);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [lightboxProject, lightboxImages.length]);
 
   return (
     <>
@@ -840,22 +990,12 @@ export function ProjectsPage() {
                   hospitality structures.
                 </p>
 
-                <div className="careers-hero-cta" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div className="careers-hero-cta">
                   <a href="#featured-projects" className="global-btn-white">
                     <span className="btn-text-wrapper">
                       <span className="btn-text">EXPLORE PROJECTS</span>
                     </span>
                   </a>
-                  <button
-                    type="button"
-                    onClick={() => openEstimateModal()}
-                    className="global-btn"
-                    style={{ border: 'none', cursor: 'pointer' }}
-                  >
-                    <span className="btn-text-wrapper">
-                      <span className="btn-text">REQUEST CONSULTATION</span>
-                    </span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -914,7 +1054,7 @@ export function ProjectsPage() {
           </div>
         </section>
 
-        {/* 3. FEATURED PROJECTS GRID / CARDS */}
+        {/* 3. FEATURED PROJECTS GRID / CARDS (With Real Initialized Swiper Carousels) */}
         <section id="featured-projects" className="projects-grid-section">
           <div className="container">
             <div className="projects-section-header text-center">
@@ -934,77 +1074,19 @@ export function ProjectsPage() {
             </div>
 
             <div className="row g-4">
-              {visibleProjects.map((prj) => {
-                const imgs = getProjectImages(prj);
-                const currIdx = getPhotoIdx(prj.id) % imgs.length;
-                return (
-                  <div className="col-lg-6 col-12" key={prj.id}>
-                    <div className="project-card">
-                      <div className="project-card-image-box">
-                        <span className="project-number-badge">{prj.number}</span>
-                        <span className="project-market-chip">{prj.market}</span>
-
-                        <div className="swiper project-swiper">
-                          <div className="swiper-wrapper">
-                            <div className="swiper-slide">
-                              <img
-                                src={imgs[currIdx]}
-                                alt={`${prj.name} - Photo ${currIdx + 1}`}
-                                className="project-img"
-                              />
-                            </div>
-                          </div>
-                          {imgs.length > 1 && (
-                            <>
-                              <div
-                                className="swiper-button-next"
-                                onClick={() => stepPhoto(prj, 1)}
-                                role="button"
-                                tabIndex={0}
-                              ></div>
-                              <div
-                                className="swiper-button-prev"
-                                onClick={() => stepPhoto(prj, -1)}
-                                role="button"
-                                tabIndex={0}
-                              ></div>
-                            </>
-                          )}
-                        </div>
-
-                        <button
-                          type="button"
-                          className="project-expand-gallery-btn"
-                          onClick={() => openGalleryModal(prj, currIdx)}
-                        >
-                          <i className="fa-solid fa-expand"></i> Gallery ({imgs.length})
-                        </button>
-                      </div>
-
-                      <div className="project-card-body">
-                        <div className="project-title-row">
-                          <h3 className="project-name">{prj.name}</h3>
-                          <span className="project-price-tag">{prj.priceRange}</span>
-                        </div>
-                        <div className="project-meta-chips">
-                          <span>
-                            <i className="fa-solid fa-hard-hat"></i> GC: {prj.gc}
-                          </span>
-                          <span>
-                            <i className="fa-solid fa-ruler-square"></i> {prj.sqft}
-                          </span>
-                        </div>
-                        <p className="project-description">{prj.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {visibleProjects.map((prj) => (
+                <ProjectCardItem
+                  key={prj.id}
+                  prj={prj}
+                  imgs={getProjectImages(prj)}
+                  onOpenGallery={openGalleryModal}
+                />
+              ))}
             </div>
           </div>
         </section>
 
-        {/* 4. MARKETS WE SERVE */}
+        {/* 4. MARKETS WE SERVE (With projects-section-title--white for Dark Section Contrast) */}
         <section className="projects-markets-section">
           <div className="container">
             <div className="text-center mb-5">
@@ -1013,11 +1095,17 @@ export function ProjectsPage() {
                 style={{ justifyContent: 'center' }}
                 aria-hidden="true"
               >
-                <p className="highlights">DIVERSE EXPERTISE</p>
+                <p className="highlights" style={{ borderColor: '#fff', color: '#fff' }}>
+                  DIVERSE MARKETS
+                </p>
               </div>
-              <h2 className="projects-section-title">
-                MARKETS <span className="projects-red">WE SERVE</span>
+              <h2 className="projects-section-title projects-section-title--white">
+                MARKETS WE <span className="projects-red">SERVE</span>
               </h2>
+              <p className="projects-markets-intro">
+                Proven expertise and high-performance concrete execution across key commercial
+                sectors in Utah.
+              </p>
             </div>
 
             <div className="row g-4 justify-content-center">
@@ -1588,7 +1676,6 @@ export function TeamPage() {
   const teamSwiperRef = useRef<HTMLDivElement | null>(null);
   const prevBtnRef = useRef<HTMLDivElement | null>(null);
   const nextBtnRef = useRef<HTMLDivElement | null>(null);
-  const [selectedDept, setSelectedDept] = useState<string>('ALL');
 
   useEffect(() => {
     let instance: any = null;
@@ -1604,6 +1691,7 @@ export function TeamPage() {
           slidesPerView: 1.2,
           spaceBetween: 20,
           loop: visibleTeam.length > 4,
+          grabCursor: true,
           navigation: {
             nextEl: nextBtnRef.current,
             prevEl: prevBtnRef.current,
@@ -1631,22 +1719,9 @@ export function TeamPage() {
     };
   }, [visibleTeam.length]);
 
-  const departments = [
-    'ALL',
-    'Leadership',
-    'Operations & Restoration',
-    'Estimating',
-    'Marketing & Business Dev',
-  ];
-
-  const filteredDirectory =
-    selectedDept === 'ALL'
-      ? visibleTeam
-      : visibleTeam.filter((m) => m.department === selectedDept);
-
   return (
     <div>
-      {/* 1. EXACT SECTION-OUR-TEAM SWIPER CAROUSEL (1:1 WITH VMGNEXT.COM/TEAM/) */}
+      {/* EXACT SECTION-OUR-TEAM SWIPER CAROUSEL (1:1 WITH VMGNEXT.COM/TEAM/) */}
       <div className="section-our-team">
         <div className="container">
           <div className="row">
@@ -1695,90 +1770,6 @@ export function TeamPage() {
         </div>
       </div>
 
-      {/* 2. COMPLETE INTERACTIVE DIRECTORY VIEW (All 18 Active Members + Department Filter) */}
-      <div style={{ backgroundColor: '#181818', padding: '40px 0 100px' }}>
-        <div className="container">
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '16px',
-              borderTop: '1px solid rgba(255,255,255,0.12)',
-              paddingTop: '48px',
-              marginBottom: '36px',
-            }}
-          >
-            <div>
-              <h3
-                style={{
-                  color: '#ffffff',
-                  fontFamily: '"BBH Sans Bartle", sans-serif',
-                  fontSize: '24px',
-                  margin: 0,
-                }}
-              >
-                Full Leadership &amp; Estimating Directory ({filteredDirectory.length})
-              </h3>
-              <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', marginTop: '6px' }}>
-                Click any team member to view their biography page, or manage photos, roles, and
-                visibility in the{' '}
-                <Link to="/admin" style={{ color: '#E70000', fontWeight: 700 }}>
-                  Team 360° Admin CMS →
-                </Link>
-              </p>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {departments.map((dept) => (
-                <button
-                  key={dept}
-                  type="button"
-                  onClick={() => setSelectedDept(dept)}
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: '50px',
-                    border:
-                      selectedDept === dept
-                        ? '1px solid #E70000'
-                        : '1px solid rgba(255,255,255,0.25)',
-                    backgroundColor: selectedDept === dept ? '#E70000' : 'transparent',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {dept === 'ALL' ? `All (${visibleTeam.length})` : dept}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="row g-4">
-            {filteredDirectory.map((member) => (
-              <div className="col-xl-3 col-lg-4 col-md-6 col-12" key={`dir-${member.id}`}>
-                <div className="team-card-wrapper" style={{ marginBottom: '20px' }}>
-                  <Link className="team-member-link" to={`/team/${member.slug}`}>
-                    <img
-                      className="team-member-photo"
-                      src={member.cardPhoto}
-                      alt={`${member.name}, ${member.role} at VMG NeXT`}
-                      style={{ width: '100%' }}
-                    />
-                  </Link>
-                  <div className="team-meta">
-                    <div className="team-member-name">{member.name}</div>
-                    <div className="team-member-title">{member.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <PreFooterCta />
     </div>
   );
@@ -1796,21 +1787,6 @@ export function TeamMemberDetailPage() {
     <div>
       <div className="section-team-member">
         <div className="container">
-          <div style={{ marginBottom: '24px' }}>
-            <Link
-              to="/team"
-              style={{
-                color: '#E70000',
-                fontWeight: 700,
-                textDecoration: 'none',
-                fontSize: '14px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
-            >
-              ← Back to Our Team
-            </Link>
-          </div>
           <div className="row">
             <div className="col-xxl-6 align-center">
               <div className="home-about-wrapper">
@@ -1823,14 +1799,13 @@ export function TeamMemberDetailPage() {
             <div className="col-xxl-6 team-member-img">
               <img
                 src={member.detailPhoto || member.cardPhoto}
-                alt={member.name}
+                alt="Team Member"
                 className="team-member-img"
               />
             </div>
           </div>
         </div>
       </div>
-      <PreFooterCta />
     </div>
   );
 }
@@ -2268,6 +2243,7 @@ export function CareersPage() {
 export function RestorationPage() {
   const [filter, setFilter] = useState<string>('all');
   const restoSwiperRef = useRef<HTMLDivElement | null>(null);
+  const restoWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const filteredItems =
     filter === 'all'
@@ -2283,17 +2259,40 @@ export function RestorationPage() {
         timer = setTimeout(initRestoSwiper, 200);
         return;
       }
-      if (restoSwiperRef.current) {
-        instance = new window.Swiper(restoSwiperRef.current, {
-          slidesPerView: 'auto',
-          spaceBetween: 20,
-          loop: filteredItems.length > 4,
-          speed: 3500,
-          autoplay: {
-            delay: 0,
-            disableOnInteraction: false,
-          },
-        });
+      if (restoSwiperRef.current && restoWrapperRef.current) {
+        const slideWidth = 280;
+        const gap = 40;
+        const totalWidth =
+          filteredItems.length * slideWidth + (filteredItems.length - 1) * gap;
+        const fitsOnScreen = totalWidth < window.innerWidth;
+
+        if (fitsOnScreen) {
+          restoWrapperRef.current.style.justifyContent = 'center';
+          restoWrapperRef.current.style.transform = 'none';
+          instance = new window.Swiper(restoSwiperRef.current, {
+            slidesPerView: 'auto',
+            spaceBetween: 40,
+            loop: false,
+            autoplay: false,
+            centeredSlides: false,
+            freeMode: false,
+            grabCursor: false,
+          });
+        } else {
+          restoWrapperRef.current.style.justifyContent = '';
+          instance = new window.Swiper(restoSwiperRef.current, {
+            slidesPerView: 'auto',
+            spaceBetween: 40,
+            loop: filteredItems.length >= 4,
+            speed: 4000,
+            autoplay: {
+              delay: 0,
+              disableOnInteraction: false,
+            },
+            freeMode: true,
+            grabCursor: true,
+          });
+        }
       }
     };
 
@@ -2366,7 +2365,7 @@ export function RestorationPage() {
         </div>
       </div>
 
-      {/* 3. RESTORATION GALLERY SECTION (All 29 Restoration Photos) */}
+      {/* 3. RESTORATION GALLERY SECTION */}
       <div className="restoration-gallery-section">
         <div className="section-header">
           <div className="home-about-wrapper" style={{ justifyContent: 'center' }}>
@@ -2381,7 +2380,7 @@ export function RestorationPage() {
             className={`project-filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            All Projects ({INITIAL_RESTORATION.length})
+            All Projects
           </button>
           <button
             type="button"
@@ -2413,8 +2412,8 @@ export function RestorationPage() {
           </button>
         </div>
 
-        <div className="swiper resto-gallery-swiper" ref={restoSwiperRef}>
-          <div className="swiper-wrapper">
+        <div className="swiper resto-gallery-swiper" id="restoGallerySwiper" ref={restoSwiperRef}>
+          <div className="swiper-wrapper" id="restoGalleryWrapper" ref={restoWrapperRef}>
             {filteredItems.map((item) => (
               <div className="swiper-slide" key={item.id}>
                 <div className="resto-gallery-item">
@@ -2530,10 +2529,10 @@ export function BlogPage() {
                 cast-in-place foundations, and structural concrete restoration across Utah.
               </p>
               <div className="careers-hero-cta">
-                <Link to="/admin" className="global-btn">
+                <Link to="/admin" className="global-btn-white">
                   <span className="btn-text-wrapper">
                     <span className="btn-text">
-                      <i className="fa-solid fa-wand-magic-sparkles"></i> Generate &amp; Auto-Publish Blog with AI
+                      Generate &amp; Auto-Publish Blog with AI
                     </span>
                   </span>
                 </Link>
@@ -2544,7 +2543,7 @@ export function BlogPage() {
       </section>
 
       {/* BLOG GRID */}
-      <section className="projects-grid-section" style={{ backgroundColor: '#ffffff' }}>
+      <section className="projects-grid-section" style={{ backgroundColor: '#f7f7f8' }}>
         <div className="container">
           <div
             style={{
@@ -2606,7 +2605,12 @@ export function BlogPage() {
                   </div>
                   <div
                     className="project-card-body"
-                    style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}
                   >
                     <div>
                       <div className="project-meta-chips" style={{ marginBottom: '12px' }}>
@@ -2687,6 +2691,7 @@ export function BlogPostDetailPage() {
               lineHeight: 1.15,
               marginTop: '12px',
               maxWidth: '920px',
+              color: '#ffffff',
             }}
           >
             {post.title}
@@ -2735,6 +2740,7 @@ export function BlogPostDetailPage() {
                   fontFamily: '"BBH Sans Bartle", sans-serif',
                   fontSize: '22px',
                   margin: 0,
+                  color: '#ffffff',
                 }}
               >
                 Planning a Commercial Concrete Project in Utah?
@@ -2748,10 +2754,9 @@ export function BlogPostDetailPage() {
               type="button"
               onClick={() => openEstimateModal()}
               className="global-btn"
-              style={{ border: 'none', cursor: 'pointer' }}
             >
               <span className="btn-text-wrapper">
-                <span className="btn-text">Request Consultation</span>
+                <span className="btn-text">Schedule a call</span>
               </span>
             </button>
           </div>
@@ -2892,7 +2897,7 @@ export function ContactPage() {
             <div className="col-xl-6">
               <div className="contact-form-wrapper">
                 <h3 className="home-form-title">Let’s Start Building Together</h3>
-                <div className="wpcf7 js" lang="en-US" dir="ltr">
+                <div className="wpcf7 no-js" lang="en-US" dir="ltr">
                   <form onSubmit={handleSubmit} className="wpcf7-form init" aria-label="Contact form">
                     <div className="form-wrapper">
                       <div className="row">
@@ -2992,7 +2997,7 @@ export function ContactPage() {
                               <span className="wpcf7-form-control-wrap">
                                 <textarea
                                   cols={40}
-                                  rows={6}
+                                  rows={10}
                                   maxLength={2000}
                                   className="wpcf7-form-control wpcf7-textarea"
                                   value={message}
@@ -3027,11 +3032,7 @@ export function ContactPage() {
                         <div className="form-submission">
                           <div className="btn-wrapper">
                             <p>
-                              <button
-                                type="submit"
-                                className="global-btn"
-                                style={{ border: 'none', cursor: 'pointer' }}
-                              >
+                              <button type="submit" className="global-btn">
                                 <span className="btn-text-wrapper">
                                   <span className="btn-text">Schedule a call</span>
                                 </span>

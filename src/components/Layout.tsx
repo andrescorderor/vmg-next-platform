@@ -17,7 +17,7 @@ declare global {
 }
 
 /* ============================================================================
-   1. ESTIMATING SOFTWARE API MODAL ("Request Consultation" -> ocv1_...)
+   1. ESTIMATING SOFTWARE API MODAL ("Schedule a call" / "Request Consultation")
    ============================================================================ */
 export function EstimatingConsultationModal() {
   const {
@@ -304,7 +304,7 @@ export function PreFooterCta({
   phoneSubtext?: string;
   showExploreLinks?: boolean;
 }) {
-  const { settings, submitEstimateLead, openEstimateModal } = useVmg();
+  const { settings, submitEstimateLead } = useVmg();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -352,29 +352,17 @@ export function PreFooterCta({
                 </div>
                 <div className="phone-inner-wrapper">
                   <p className="why-para bottom-para">{phoneSubtext}</p>
-                  <a href={`tel:${settings.phone.replace(/[^0-9]/g, '')}`} className="header-telephone">
+                  <a href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`} className="header-telephone">
                     <i></i> {settings.phone}
                   </a>
                 </div>
-              </div>
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => openEstimateModal()}
-                  className="global-btn"
-                  style={{ cursor: 'pointer', border: 'none' }}
-                >
-                  <span className="btn-text-wrapper">
-                    <span className="btn-text">Request Consultation &amp; Estimate</span>
-                  </span>
-                </button>
               </div>
             </div>
           </div>
 
           <div className="col-xl-6">
             <h3 className="home-form-title home-form-title-animate">{formHeading}</h3>
-            <div className="wpcf7 js" lang="en-US" dir="ltr">
+            <div className="wpcf7 no-js" lang="en-US" dir="ltr">
               <form onSubmit={handleQuickSubmit} className="wpcf7-form init" aria-label="Contact form">
                 <div className="form-wrapper">
                   <div className="row">
@@ -472,11 +460,7 @@ export function PreFooterCta({
                     <div className="form-submission">
                       <div className="btn-wrapper">
                         <p>
-                          <button
-                            type="submit"
-                            className="global-btn"
-                            style={{ border: 'none', cursor: 'pointer' }}
-                          >
+                          <button type="submit" className="global-btn">
                             <span className="btn-text-wrapper">
                               <span className="btn-text">Schedule a call</span>
                             </span>
@@ -576,13 +560,196 @@ export function ContactMapSection() {
 }
 
 /* ============================================================================
-   4. MAIN LAYOUT (#wrapper -> header.navbar-black-bg + Outlet + footer#footer)
+   4. PAGE-WIDE SCROLL REVEAL & COUNTER ANIMATION ENGINE
+   ============================================================================ */
+function usePageAnimations(pathname: string) {
+  useEffect(() => {
+    if (pathname === '/admin') return;
+
+    const wrapper = document.getElementById('wrapper');
+    if (!wrapper) return;
+
+    // 1. Scroll Reveal Targets
+    const revealSelectors = [
+      '.mission-wrapper',
+      '.home-about-wrapper',
+      '.metrics-title',
+      '.metrics-content-wrapper',
+      '.home-about-title',
+      '.home-about-para',
+      '.testi-title',
+      '.why-title',
+      '.home-form-title',
+      '.projects-section-title',
+      '.projects-section-desc',
+      '.projects-metric-item',
+      '.project-card',
+      '.market-card',
+      '.capability-card',
+      '.service-card',
+      '.vmg-point-card',
+      '.checkbox-wrapper',
+      '.our-mission-wrapper',
+      '.who-we-are-wrapper',
+      '.review-box',
+      '.phone-wrapper',
+      '.form-wrapper',
+      '.careers-hero-title',
+      '.careers-hero-subtitle',
+      '.careers-hero-cta',
+      '.careers-section-title',
+      '.careers-why-para',
+      '.careers-stat-card',
+      '.careers-benefit-card',
+      '.careers-position-card',
+      '.careers-resume-banner',
+      '.careers-video-card',
+      '.resto-main-img',
+      '.restoration-hero-section h1',
+      '.restoration-hero-section .sub-headline',
+      '.restoration-checklist li',
+      '.process-card',
+      '.info-card',
+      '.contact-form-photo',
+      '.section-team-member .col-xxl-6',
+    ];
+
+    const elements = Array.from(wrapper.querySelectorAll<HTMLElement>(revealSelectors.join(',')));
+
+    elements.forEach((el, idx) => {
+      el.classList.add('vmg-anim-item');
+      if (
+        el.classList.contains('who-we-are-wrapper') ||
+        el.classList.contains('phone-wrapper') ||
+        el.classList.contains('resto-main-img') ||
+        el.classList.contains('contact-form-photo')
+      ) {
+        el.classList.add('vmg-anim-left');
+      } else if (
+        el.classList.contains('home-about-para') ||
+        el.classList.contains('form-wrapper') ||
+        el.classList.contains('team-member-img')
+      ) {
+        el.classList.add('vmg-anim-right');
+      } else if (
+        el.classList.contains('project-card') ||
+        el.classList.contains('market-card') ||
+        el.classList.contains('capability-card') ||
+        el.classList.contains('vmg-point-card') ||
+        el.classList.contains('careers-benefit-card') ||
+        el.classList.contains('process-card') ||
+        el.classList.contains('info-card')
+      ) {
+        el.classList.add('vmg-anim-scale');
+      }
+      const staggerMs = (idx % 4) * 75;
+      el.style.setProperty('--vmg-delay', `${staggerMs}ms`);
+    });
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('vmg-in-view');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    elements.forEach((el) => revealObserver.observe(el));
+
+    // 2. Animated Horizontal Divider Lines (.global-seperator & .global-seperator-dark)
+    const lines = Array.from(
+      wrapper.querySelectorAll<HTMLElement>('.global-seperator, .global-seperator-dark')
+    );
+    lines.forEach((line) => line.classList.add('vmg-line-hidden'));
+
+    const lineObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('vmg-line-hidden');
+            entry.target.classList.add('vmg-line-visible');
+            lineObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    lines.forEach((line) => lineObserver.observe(line));
+
+    // 3. Animated Number Counters (.metrics-number, .review-number)
+    const counterEls = Array.from(
+      wrapper.querySelectorAll<HTMLElement>('.metrics-number, .review-number')
+    );
+
+    const animateCounter = (el: HTMLElement) => {
+      if (el.dataset.vmgCounted === 'true') return;
+      const raw = (el.dataset.vmgOriginal || el.textContent || '').trim();
+      el.dataset.vmgOriginal = raw;
+      const match = raw.match(/[\d,.]+/);
+      if (!match) return;
+      el.dataset.vmgCounted = 'true';
+
+      const numStr = match[0];
+      const suffix = raw.replace(numStr, '');
+      const target = parseFloat(numStr.replace(',', '.'));
+      const decimals = numStr.includes('.') ? 1 : 0;
+      const duration = 1800;
+      const startTime = performance.now();
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // easeOutQuart
+        const eased = 1 - Math.pow(1 - progress, 4);
+        const current = (eased * target).toFixed(decimals);
+        el.textContent = `${current}${suffix}`;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = raw;
+        }
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    const counterObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            counterObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    counterEls.forEach((el) => counterObserver.observe(el));
+
+    return () => {
+      revealObserver.disconnect();
+      lineObserver.disconnect();
+      counterObserver.disconnect();
+    };
+  }, [pathname]);
+}
+
+/* ============================================================================
+   5. MAIN LAYOUT (#wrapper -> header.navbar-black-bg + Outlet + footer#footer)
    ============================================================================ */
 export function Layout() {
   const { settings, openEstimateModal, toasts, team, blogs } = useVmg();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showTopBtn, setShowTopBtn] = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
+
+  usePageAnimations(location.pathname);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -593,8 +760,13 @@ export function Layout() {
   useEffect(() => {
     const onScroll = () => {
       setShowTopBtn(window.scrollY > 300);
+      const docHeight =
+        document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (docHeight > 0) {
+        setScrollPct(Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100)));
+      }
     };
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -604,8 +776,14 @@ export function Layout() {
     document.body.style.overflow = next ? 'hidden' : '';
   };
 
+  const isNavActive = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
   return (
     <>
+      {/* TOP SCROLL PROGRESS INDICATOR */}
+      <div className="vmg-top-scroll-progress" style={{ width: `${scrollPct}%` }} />
+
       <a href="#main" className="visually-hidden-focusable">
         Skip to main content
       </a>
@@ -619,7 +797,7 @@ export function Layout() {
       )}
 
       <div id="wrapper">
-        {/* EXACT VMG NeXT HEADER */}
+        {/* EXACT VMG NeXT HEADER (1:1 Original Structure) */}
         <header className="navbar-black-bg">
           <nav className="container navigation-wrapper navbar-black-bg">
             <div className="row">
@@ -636,42 +814,66 @@ export function Layout() {
                   <div className="main-nav-wrapper">
                     <ul className="main-nav">
                       <li className="menu-item">
-                        <Link to="/services" className="menu-item-link">
+                        <Link
+                          to="/services"
+                          className={`menu-item-link ${isNavActive('/services') ? 'active-nav-link' : ''}`}
+                        >
                           Services
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/projects" className="menu-item-link">
+                        <Link
+                          to="/projects"
+                          className={`menu-item-link ${isNavActive('/projects') ? 'active-nav-link' : ''}`}
+                        >
                           Projects
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/about-us" className="menu-item-link">
+                        <Link
+                          to="/about-us"
+                          className={`menu-item-link ${isNavActive('/about-us') ? 'active-nav-link' : ''}`}
+                        >
                           About
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/team" className="menu-item-link">
+                        <Link
+                          to="/team"
+                          className={`menu-item-link ${isNavActive('/team') ? 'active-nav-link' : ''}`}
+                        >
                           Team
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/careers" className="menu-item-link">
+                        <Link
+                          to="/careers"
+                          className={`menu-item-link ${isNavActive('/careers') ? 'active-nav-link' : ''}`}
+                        >
                           Careers
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/blog" className="menu-item-link">
+                        <Link
+                          to="/blog"
+                          className={`menu-item-link ${isNavActive('/blog') ? 'active-nav-link' : ''}`}
+                        >
                           Blog
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/restoration" className="menu-item-link">
+                        <Link
+                          to="/restoration"
+                          className={`menu-item-link ${isNavActive('/restoration') ? 'active-nav-link' : ''}`}
+                        >
                           Restoration
                         </Link>
                       </li>
                       <li className="menu-item">
-                        <Link to="/contact-us" className="menu-item-link">
+                        <Link
+                          to="/contact-us"
+                          className={`menu-item-link ${isNavActive('/contact-us') ? 'active-nav-link' : ''}`}
+                        >
                           Contact
                         </Link>
                       </li>
@@ -684,16 +886,16 @@ export function Layout() {
                     >
                       <i className="fa-solid fa-phone"></i> {settings.phone}
                     </a>
-                    <button
-                      type="button"
-                      onClick={() => openEstimateModal()}
-                      className="header-estimate-btn"
+                    <a
+                      href="#schedule-call"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openEstimateModal();
+                      }}
+                      className="header-calendar"
                     >
-                      <i className="fa-solid fa-calculator"></i> Request Consultation
-                    </button>
-                    <Link to="/contact-us" className="header-calendar">
                       Schedule a call
-                    </Link>
+                    </a>
                   </div>
                 </div>
 
@@ -771,11 +973,6 @@ export function Layout() {
                           Contact
                         </Link>
                       </li>
-                      <li className="menu-item">
-                        <Link to="/admin" className="menu-item-link" style={{ color: '#E70000' }}>
-                          Admin CMS &amp; AI Studio
-                        </Link>
-                      </li>
                     </ul>
                   </div>
                   <div className="header-book-wrapper">
@@ -790,19 +987,17 @@ export function Layout() {
                       />{' '}
                       {settings.phone}
                     </a>
-                    <button
-                      type="button"
-                      onClick={() => {
+                    <a
+                      href="#schedule-call"
+                      onClick={(e) => {
+                        e.preventDefault();
                         setMobileOpen(false);
                         openEstimateModal();
                       }}
-                      className="header-estimate-btn"
+                      className="header-calendar"
                     >
-                      Request Consultation
-                    </button>
-                    <Link to="/contact-us" className="header-calendar">
                       Schedule a call
-                    </Link>
+                    </a>
                   </div>
                   <div className="mobile-menu-footer">
                     <div className="mobile-menu-copyrights">
@@ -886,11 +1081,6 @@ export function Layout() {
                   <li className="footer-menu-item">
                     <Link to="/contact-us" className="footer-menu-link">
                       Contact
-                    </Link>
-                  </li>
-                  <li className="footer-menu-item">
-                    <Link to="/admin" className="footer-menu-link" style={{ color: '#E70000' }}>
-                      Admin Studio &amp; AI Blog
                     </Link>
                   </li>
                 </ul>

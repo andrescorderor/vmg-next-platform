@@ -2506,8 +2506,11 @@ p.why-us {
     background-color: #E70000 !important;
 }
 
-.btn-text-new {
-    color: white !important;
+.global-btn-white .btn-text-new, .global-btn-white .btn-text {
+    color: #181818 !important;
+}
+.global-btn-white:hover .btn-text-new, .global-btn-white:hover .btn-text {
+    color: #ffffff !important;
 }
 
 .global-btn-white-metrics::before {
@@ -2614,14 +2617,14 @@ h2.mission-title {
 /* TIPOGRAFÍA GLOBAL                */
 /* -------------------------------- */
 
-h1, h2  {
+#wrapper h1, #wrapper h2 {
     font-family: "BBH Sans Bartle", sans-serif;
     font-weight: 200;
     font-style: normal;
     letter-spacing: 2px !important;
 }
 
-p, h3, h4, h5, h6, span, a  {
+#wrapper p, #wrapper h3, #wrapper h4, #wrapper h5, #wrapper h6, #wrapper span, #wrapper a {
     font-family: "Atkinson Hyperlegible Next", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -2630,8 +2633,14 @@ p, h3, h4, h5, h6, span, a  {
 }
 
 @media (min-width: 992px) {
-    h1, h2 {
+    #wrapper h1, #wrapper h2 {
         font-size: 33px !important;
+    }
+    #wrapper h1.careers-hero-title {
+        font-size: 70px !important;
+    }
+    #wrapper h2.projects-section-title, #wrapper h2.careers-section-title {
+        font-size: 42px !important;
     }
 }
 
@@ -3047,3 +3056,18 @@ ul.main-nav li.menu-item:hover .menu-item-link, a.header-telephone:hover{
 
 
 
+
+
+/* Dark section highlight badge & title contrast fixes */
+.projects-hero-badge-wrapper p.highlights,
+.careers-hero-badge-wrapper p.highlights,
+.projects-markets-section p.highlights,
+.careers-testimonials-section p.highlights {
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.65) !important;
+}
+
+#wrapper h2.projects-section-title--white,
+#wrapper h2.careers-section-title--white {
+    color: #ffffff !important;
+}
