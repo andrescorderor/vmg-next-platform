@@ -1,6 +1,6 @@
 # Technical & Commercial Proposal: Next-Generation Web Platform, Team 360° CMS & AI Publishing Suite — VMG NeXT Construction
 
-**Client:** VMG NeXT Construction (Melanie & Victor Galvan)  
+**Client:** VMG NeXT Construction  
 **Location:** 7370 S Creek Rd. STE 204, Sandy, Utah 84093 (Salt Lake City & Park City Markets)  
 **Live Application Demo:** https://andrescorderor.github.io/vmg-next-platform/  
 **Interactive Proposal Deck:** https://andrescorderor.github.io/propuesta-vmg-next/  
@@ -36,7 +36,7 @@ The new platform preserves **100% of VMG NeXT's original visual identity, typogr
 
 ## 3. AI Blog Studio & One-Click Auto-Publisher (`/admin` → AI Blog Studio)
 
-Built directly into the private `/admin` dashboard so Melanie or Sophia can publish high-ranking SEO content in under 30 seconds:
+Built directly into the private `/admin` dashboard so the VMG NeXT team can publish high-ranking SEO content in under 30 seconds:
 
 - **Prompt-to-Published Article in 1 Click:** Enter a short prompt or topic (e.g., *"Why Tilt-Up Concrete Reduces Winter Construction Schedules for Salt Lake City Warehouses"*), select target tone and Utah SEO keywords, and click **"Generate & Auto-Publish with AI"**.
 - **Automated Executive Formatting:** The AI engine drafts a comprehensive, technically accurate commercial concrete article complete with `H2/H3` headings, structural bullet points, an executive pull-quote, estimated read time, SEO slug, and cover photo—and **publishes it live to `/blog` immediately**.
@@ -46,7 +46,7 @@ Built directly into the private `/admin` dashboard so Melanie or Sophia can publ
 
 ## 4. Team Members 360° Manager (`/admin` → Team Members)
 
-Eliminates HTML editing forever. Melanie and Victor have full visual control over the leadership and estimating directory:
+Eliminates HTML editing forever. VMG NeXT has full visual control over the leadership and estimating directory:
 
 - **22 Pre-Loaded Profiles (18 Active + 4 Hidden):** Includes *Victor Galvan (CEO), Yolanda Galvan, Mayra Gonzalez, Scott Longhurst, Abner Palacios (Director of Special Projects), Archer Wagner, Johana Gutiérrez, Sophia Galvan (Marketing Director), Rene Villanueva (Lead Estimator), Eduardo Galvan (Assistant Project Manager), Lisamara Garcia, Luis Alonso, Erick Patoni-Morato, Nahomy Sinclair, Allan Saenz, Alexander, Scarlet Watson, and Darwing Grijalba*.
 - **1-Click Hide / Show Toggle:** Former or paused profiles (*Savannah, Zachariah Maynard, Levi Palacios, Valerie Diaz*) are preserved in the database as `Hidden` and can be reactivated or archived with a single switch—never touching HTML comments again.
@@ -83,7 +83,7 @@ Because the functional application and 1:1 migration are already built and deplo
 | **Phase 3: AI Blog Studio, Careers & Estimating API** | Week 3 | `/admin` control center, AI Prompt-to-Blog auto-publisher, `/careers` portal, and `ocv1_...` API integration. | **Week 3** |
 | **Phase 4: QA, SEO URL Preservation & Go-Live** | Week 4 | URL redirect mapping to protect Google rankings, custom domain DNS switch on `vmgnext.com`, and training. | **Week 4 · Go-Live** |
 
-- **Post-Launch Warranty:** Includes **3 weeks of dedicated post-launch technical support**, minor adjustments, and a live training session for Melanie and Sophia Galvan.
+- **Post-Launch Warranty:** Includes **3 weeks of dedicated post-launch technical support**, minor adjustments, and a live training session for the VMG NeXT team.
 
 ---
 

@@ -766,11 +766,11 @@ export const INITIAL_TEAM: TeamMember[] = [
     department: 'Marketing & Business Dev',
     cardPhoto: 'https://vmgnext.com/wp-content/uploads/2025/11/ValeriePreviewFinal.png',
     detailPhoto: 'https://vmgnext.com/wp-content/uploads/2025/11/ValeriePreviewFinal.png',
-    bioPara1: 'Temporarily hidden per Melanie request.',
+    bioPara1: 'Temporarily hidden per VMG NeXT request.',
     bioPara2: 'Preserved in CMS database for instant restoration if needed.',
     visible: false,
     orderIndex: 22,
-    note: 'Hidden temporarily per Melanie request',
+    note: 'Hidden temporarily per VMG NeXT request',
   },
 ];
 
