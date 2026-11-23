@@ -334,6 +334,16 @@ export function HomePage() {
             <source src={settings.heroVideoMobile} type="video/mp4" />
           </video>
         </div>
+        <button
+          type="button"
+          className="vmg-hero-scroll-cue"
+          onClick={() => {
+            document.querySelector('.section-metrics')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          <span>Explore VMG NeXT</span>
+          <i className="fa-solid fa-chevron-down" style={{ color: '#E70000' }}></i>
+        </button>
       </div>
 
       {/* 2. EXACT SECTION METRICS (220+, 20, 100%) */}
@@ -700,7 +710,7 @@ export function ServicesPage() {
               const imageLeft = idx % 2 === 0;
               return (
                 <div className="col-12" key={srv.id}>
-                  <div className="service-card">
+                  <div className={`service-card ${!imageLeft ? 'service-card--reversed' : ''}`}>
                     {imageLeft && (
                       <div className="col-xxl-6 col-12">
                         <img src={srv.detailImage} alt={srv.title} className="service-img" />
@@ -1279,7 +1289,7 @@ export function ProjectsPage() {
           >
             <i className="fa-solid fa-xmark"></i>
           </button>
-          <div className="project-modal-content">
+          <div className="project-modal-content vmg-modal-animate">
             <div className="project-modal-header">
               <h3 id="projectModalTitle" className="project-modal-title">
                 {lightboxProject.name}

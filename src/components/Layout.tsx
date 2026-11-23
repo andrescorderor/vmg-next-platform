@@ -84,9 +84,9 @@ export function EstimatingConsultationModal() {
       onClick={(e) => {
         if (e.target === e.currentTarget) closeEstimateModal();
       }}
-      className="vmg-admin-scope fixed inset-0 z-[9995] flex items-center justify-center bg-[#121214]/85 p-4 backdrop-blur-md"
+      className="vmg-admin-scope fixed inset-0 z-[9995] flex items-center justify-center bg-[#121214]/85 p-3 sm:p-4 backdrop-blur-md"
     >
-      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/15 bg-[#18181c] p-6 text-white shadow-2xl sm:p-8">
+      <div className="vmg-modal-animate relative max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/15 bg-[#18181c] p-5 text-white shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#E70000]/40 bg-[#E70000]/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#ff6b6b]">
@@ -646,6 +646,77 @@ function usePageAnimations(pathname: string) {
       el.style.setProperty('--vmg-delay', `${staggerMs}ms`);
     });
 
+    // 1b. Image Architectural Curtain Reveal (.vmg-img-reveal)
+    const imageSelectors = [
+      '.service-card .service-img',
+      '.who-we-are-img',
+      '.section-why-us .img-wrapper img',
+      '.resto-main-img',
+      '.contact-form-photo',
+      '.section-team-member .team-member-img img',
+    ];
+    const images = Array.from(wrapper.querySelectorAll<HTMLElement>(imageSelectors.join(',')));
+    images.forEach((img) => img.classList.add('vmg-img-reveal'));
+
+    const imgObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('vmg-img-visible');
+            imgObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -30px 0px' }
+    );
+    images.forEach((img) => imgObserver.observe(img));
+
+    // 1c. Interactive Spotlight Mouse Tracker on Dark Sections
+    const darkSections = Array.from(
+      wrapper.querySelectorAll<HTMLElement>(
+        '.section-metrics, .section-services, .section-home-testimonials, .projects-markets-section, .careers-testimonials-section, .careers-hero-section'
+      )
+    );
+    const cleanupSpotlight: Array<() => void> = [];
+    darkSections.forEach((sec) => {
+      sec.classList.add('vmg-spotlight-active');
+      const onMove = (e: MouseEvent) => {
+        const rect = sec.getBoundingClientRect();
+        sec.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+        sec.style.setProperty('--my', `${e.clientY - rect.top}px`);
+      };
+      sec.addEventListener('mousemove', onMove, { passive: true });
+      cleanupSpotlight.push(() => sec.removeEventListener('mousemove', onMove));
+    });
+
+    // 1d. Subtle 3D Perspective Card Tilt on Desktop Pointer Devices
+    const canHoverTilt = window.matchMedia?.('(pointer: fine) and (min-width: 992px)')?.matches;
+    const cleanupTilt: Array<() => void> = [];
+    if (canHoverTilt) {
+      const tiltCards = Array.from(
+        wrapper.querySelectorAll<HTMLElement>(
+          '.project-card, .market-card, .capability-card, .careers-benefit-card, .process-card, .info-card'
+        )
+      );
+      tiltCards.forEach((card) => {
+        const onCardMove = (e: MouseEvent) => {
+          const rect = card.getBoundingClientRect();
+          const px = (e.clientX - rect.left) / rect.width - 0.5;
+          const py = (e.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = `perspective(900px) rotateX(${(-py * 5).toFixed(2)}deg) rotateY(${(px * 6).toFixed(2)}deg) translateY(-6px)`;
+        };
+        const onCardLeave = () => {
+          card.style.transform = '';
+        };
+        card.addEventListener('mousemove', onCardMove, { passive: true });
+        card.addEventListener('mouseleave', onCardLeave);
+        cleanupTilt.push(() => {
+          card.removeEventListener('mousemove', onCardMove);
+          card.removeEventListener('mouseleave', onCardLeave);
+        });
+      });
+    }
+
     const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -733,8 +804,11 @@ function usePageAnimations(pathname: string) {
 
     return () => {
       revealObserver.disconnect();
+      imgObserver.disconnect();
       lineObserver.disconnect();
       counterObserver.disconnect();
+      cleanupSpotlight.forEach((fn) => fn());
+      cleanupTilt.forEach((fn) => fn());
     };
   }, [pathname]);
 }
@@ -1161,16 +1235,18 @@ export function Layout() {
         </a>
       </div>
 
-      {/* FLOATING ADMIN CMS & AI BLOG LAUNCHER (Bottom-Left) */}
+      {/* FLOATING ADMIN CMS & AI BLOG LAUNCHER (Bottom-Left, Compact on Mobile) */}
       {location.pathname === '/admin' ? (
         <Link to="/" className="vmg-floating-admin-pill">
           <i className="fa-solid fa-arrow-left" style={{ color: '#E70000' }}></i>
-          <span>Back to Live Public Site</span>
+          <span className="sm:hidden">Live Site</span>
+          <span className="hidden sm:inline">Back to Live Public Site</span>
         </Link>
       ) : (
         <Link to="/admin" className="vmg-floating-admin-pill">
-          <Sparkles className="h-4 w-4 text-[#E70000]" />
-          <span>
+          <Sparkles className="h-4 w-4 shrink-0 text-[#E70000]" />
+          <span className="sm:hidden">Admin Studio</span>
+          <span className="hidden sm:inline">
             Admin CMS &amp; AI Blog ({team.filter((t) => t.visible).length} Team · {blogs.length}{' '}
             Posts)
           </span>

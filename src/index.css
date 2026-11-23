@@ -3,8 +3,20 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 
 /* ============================================================================
-   1. SCOPED ADMIN & MODAL RESETS
+   1. GLOBAL OVERFLOW GUARD & SCOPED ADMIN RESETS
    ============================================================================ */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+#wrapper {
+  overflow-x: clip !important;
+  max-width: 100vw;
+}
+
 .vmg-admin-scope {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -44,8 +56,8 @@
   top: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, #E70000 0%, #ff4d4d 100%);
-  box-shadow: 0 0 12px rgba(231, 0, 0, 0.75);
+  background: linear-gradient(90deg, #E70000 0%, #ff4d4d 50%, #ff9999 100%);
+  box-shadow: 0 0 14px rgba(231, 0, 0, 0.85);
   z-index: 10000;
   transition: width 0.12s ease-out;
   pointer-events: none;
@@ -61,27 +73,37 @@
   gap: 10px;
   background: rgba(18, 18, 20, 0.94);
   color: #ffffff !important;
-  border: 1px solid rgba(231, 0, 0, 0.65);
+  border: 1px solid rgba(231, 0, 0, 0.7);
   border-radius: 999px;
   padding: 10px 18px;
   font-family: 'Sora', sans-serif !important;
   font-size: 12px;
   font-weight: 700;
   text-decoration: none !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 18px rgba(231, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: vmgPillGlow 3.2s ease-in-out infinite;
 }
 
 .vmg-floating-admin-pill:hover {
   background: #E70000;
   color: #ffffff !important;
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 16px 36px rgba(231, 0, 0, 0.4);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 16px 36px rgba(231, 0, 0, 0.45);
+}
+
+@keyframes vmgPillGlow {
+  0%, 100% {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 14px rgba(231, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(231, 0, 0, 0.55);
+  }
 }
 
 /* ============================================================================
-   3. BUTTON CONSISTENCY (a.global-btn & button.global-btn)
+   3. KINETIC BUTTONS & RIPPLE BEAM EFFECTS
    ============================================================================ */
 button.global-btn,
 a.global-btn {
@@ -125,14 +147,14 @@ a.global-btn::before {
   height: 100%;
   background-color: #181818 !important;
   z-index: 1;
-  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  transition: width 0.42s cubic-bezier(0.22, 1, 0.36, 1) !important;
   border-radius: inherit;
 }
 
 button.global-btn:hover,
 a.global-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 30px rgba(231, 0, 0, 0.35);
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 16px 34px rgba(231, 0, 0, 0.38);
   border-color: #181818 !important;
 }
 
@@ -141,29 +163,127 @@ a.global-btn:hover::before {
   width: 115%;
 }
 
+button.global-btn:active,
+a.global-btn:active,
+.global-btn-white:active,
+.global-btn-white-metrics:active {
+  transform: scale(0.97) !important;
+}
+
+/* White Metrics Button Glow Sweep */
+a.global-btn-white-metrics {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease !important;
+}
+
+a.global-btn-white-metrics:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(255, 255, 255, 0.2);
+}
+
 /* ============================================================================
-   4. SCROLL-TRIGGERED ENTRANCE ANIMATIONS & STAGGER SYSTEM
+   4. HERO AMBIENT ANIMATIONS (VIDEO SCROLL CUE & BOTTOM SCANLINE)
+   ============================================================================ */
+.section-video-header {
+  position: relative;
+}
+
+.section-video-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #E70000 30%, #ff5c5c 50%, #E70000 70%, transparent);
+  background-size: 200% 100%;
+  animation: vmgBorderScan 3.8s linear infinite;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes vmgBorderScan {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.vmg-hero-scroll-cue {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(18, 18, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: vmgFloatCue 2.2s ease-in-out infinite;
+}
+
+.vmg-hero-scroll-cue:hover {
+  background: #E70000;
+  border-color: #E70000;
+  box-shadow: 0 8px 25px rgba(231, 0, 0, 0.45);
+}
+
+@keyframes vmgFloatCue {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -7px); }
+}
+
+/* Animated Crimson Shimmer Text on Red Display Keywords & Numbers */
+@keyframes vmgCrimsonShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.careers-red,
+.projects-red {
+  background: linear-gradient(90deg, #E70000 0%, #ff4d4d 45%, #E70000 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: vmgCrimsonShimmer 4.5s linear infinite;
+}
+
+/* ============================================================================
+   5. SCROLL-TRIGGERED ENTRANCE, IMAGE CURTAINS & PARALLAX REVEALS
    ============================================================================ */
 .vmg-anim-item {
   opacity: 0;
-  transform: translateY(36px);
+  transform: translateY(38px);
   transition:
-    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--vmg-delay, 0ms);
   will-change: opacity, transform;
 }
 
 .vmg-anim-item.vmg-anim-left {
-  transform: translateX(-44px);
+  transform: translateX(-46px);
 }
 
 .vmg-anim-item.vmg-anim-right {
-  transform: translateX(44px);
+  transform: translateX(46px);
 }
 
 .vmg-anim-item.vmg-anim-scale {
-  transform: scale(0.92) translateY(24px);
+  transform: scale(0.92) translateY(28px);
 }
 
 .vmg-anim-item.vmg-in-view {
@@ -171,23 +291,41 @@ a.global-btn:hover::before {
   transform: translate3d(0, 0, 0) scale(1) !important;
 }
 
-/* Animated Horizontal Separators (.global-seperator & .global-seperator-dark) */
+/* Architectural Image Clip-Path Wipe Reveal */
+.vmg-img-reveal {
+  clip-path: inset(0 0 18% 0);
+  transform: scale(1.07);
+  opacity: 0.25;
+  transition:
+    clip-path 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.8s ease;
+  will-change: clip-path, transform, opacity;
+}
+
+.vmg-img-reveal.vmg-img-visible {
+  clip-path: inset(0 0 0% 0);
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Animated Horizontal Separators */
 .global-seperator,
 .global-seperator-dark {
   transform-origin: left center;
-  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease, opacity 0.8s ease;
 }
 
 .global-seperator.vmg-line-hidden,
 .global-seperator-dark.vmg-line-hidden {
   transform: scaleX(0.05);
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 .global-seperator.vmg-line-visible {
   transform: scaleX(1);
   opacity: 1;
-  box-shadow: 0 0 14px rgba(231, 0, 0, 0.45);
+  box-shadow: 0 0 16px rgba(231, 0, 0, 0.5);
 }
 
 .global-seperator-dark.vmg-line-visible {
@@ -196,10 +334,137 @@ a.global-btn:hover::before {
 }
 
 /* ============================================================================
-   5. RICH MICRO-INTERACTIONS & HOVER ANIMATIONS (Preserving Original Layout)
+   6. INTERACTIVE SPOTLIGHT TRACKER IN DARK SECTIONS (--mx, --my)
    ============================================================================ */
+.section-metrics,
+.section-services,
+.section-home-testimonials,
+.projects-markets-section,
+.careers-testimonials-section,
+.careers-hero-section {
+  position: relative;
+}
 
-/* Navigation Menu Link Animated Underline */
+.vmg-spotlight-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(231, 0, 0, 0.13),
+    transparent 65%
+  );
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vmg-spotlight-active > .container,
+.vmg-spotlight-active > .custom-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================================================
+   7. METRICS ROWS KINETIC HOVER & FLOATING LEVITATION CARDS
+   ============================================================================ */
+.section-metrics .row.pt-4.pb-4 {
+  border-radius: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-left: 3px solid transparent;
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.35s ease,
+              border-left-color 0.35s ease;
+}
+
+.section-metrics .row.pt-4.pb-4:hover {
+  transform: translateX(8px);
+  background: rgba(255, 255, 255, 0.03);
+  border-left-color: #E70000;
+}
+
+.section-metrics .row.pt-4.pb-4 .metrics-number {
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), text-shadow 0.35s ease;
+}
+
+.section-metrics .row.pt-4.pb-4:hover .metrics-number {
+  transform: scale(1.04);
+  text-shadow: 0 0 28px rgba(231, 0, 0, 0.45);
+}
+
+/* Gentle Floating Levitation for Overlap Floating Cards on Desktop */
+@keyframes vmgFloatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (min-width: 1200px) {
+  .about-who-we-are-brandon-dawson-card,
+  .section-why-us .review-box {
+    animation: vmgFloatSlow 5.5s ease-in-out infinite;
+  }
+  .about-who-we-are-brandon-dawson-card:hover,
+  .section-why-us .review-box:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* ============================================================================
+   8. 3D SPECULAR SHEEN SWEEP & MICRO-INTERACTIONS ON CARDS
+   ============================================================================ */
+.home-services-box,
+.project-card,
+.market-card,
+.capability-card,
+.careers-benefit-card,
+.careers-stat-card,
+.process-card,
+.info-card,
+.service-card,
+.team-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.project-card::after,
+.market-card::after,
+.capability-card::after,
+.careers-benefit-card::after,
+.process-card::after,
+.info-card::after,
+.home-services-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(231, 0, 0, 0.09) 52%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.project-card:hover::after,
+.market-card:hover::after,
+.capability-card:hover::after,
+.careers-benefit-card:hover::after,
+.process-card:hover::after,
+.info-card:hover::after,
+.home-services-box:hover::after {
+  left: 155%;
+}
+
+/* Navigation Animated Underline & Mobile Drawer Stagger */
 ul.main-nav li.menu-item .menu-item-link {
   position: relative;
   transition: color 0.3s ease !important;
@@ -225,6 +490,29 @@ ul.main-nav li.menu-item .menu-item-link.active-nav-link {
   color: #E70000 !important;
 }
 
+.mobile-menu.open .main-nav li.menu-item {
+  animation: vmgDrawerItemIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mobile-menu.open .main-nav li.menu-item:nth-child(1) { animation-delay: 60ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(2) { animation-delay: 100ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(3) { animation-delay: 140ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(4) { animation-delay: 180ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(5) { animation-delay: 220ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(6) { animation-delay: 260ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(7) { animation-delay: 300ms; }
+.mobile-menu.open .main-nav li.menu-item:nth-child(8) { animation-delay: 340ms; }
+
+@keyframes vmgDrawerItemIn {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* Header Schedule a Call Button Shine & Lift */
 a.header-calendar {
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
@@ -235,20 +523,14 @@ a.header-calendar {
 
 a.header-calendar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(231, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(231, 0, 0, 0.38);
 }
 
 /* Pulsing Radar Ring on Phone CTA & Floating Call Button */
 @keyframes vmgPulseRing {
-  0% {
-    box-shadow: 0 0 0 0 rgba(231, 0, 0, 0.55);
-  }
-  70% {
-    box-shadow: 0 0 0 18px rgba(231, 0, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(231, 0, 0, 0);
-  }
+  0% { box-shadow: 0 0 0 0 rgba(231, 0, 0, 0.55); }
+  70% { box-shadow: 0 0 0 18px rgba(231, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(231, 0, 0, 0); }
 }
 
 .big-red-bullet,
@@ -256,7 +538,7 @@ a.header-calendar:hover {
   animation: vmgPulseRing 2.4s infinite;
 }
 
-/* Pill Badges Subtle Shimmer & Hover Lift */
+/* Pill Badges Hover Lift */
 .mission-wrapper p.highlights,
 .home-about-wrapper p.home-about,
 .mission-wrapper p.why-us,
@@ -269,10 +551,10 @@ a.header-calendar:hover {
 .mission-wrapper p.why-us:hover,
 .mission-wrapper p.testi-subtitle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(231, 0, 0, 0.22);
+  box-shadow: 0 6px 18px rgba(231, 0, 0, 0.25);
 }
 
-/* Home Services Carousel Card Hover */
+/* Services Carousel Box Hover */
 .home-services-box {
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
@@ -281,7 +563,7 @@ a.header-calendar:hover {
 
 .home-services-box:hover {
   transform: translateY(-10px);
-  box-shadow: 0 24px 48px rgba(231, 0, 0, 0.22);
+  box-shadow: 0 24px 48px rgba(231, 0, 0, 0.24);
 }
 
 .home-services-box .service-box-img {
@@ -304,7 +586,6 @@ a.header-calendar:hover {
 .service-card {
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
-  overflow: hidden;
 }
 
 .service-card:hover {
@@ -355,7 +636,6 @@ a.header-calendar:hover {
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.45s ease !important;
   border-radius: 16px;
-  overflow: hidden;
 }
 
 .team-card-wrapper:hover {
@@ -371,7 +651,7 @@ a.header-calendar:hover {
   transform: scale(1.05);
 }
 
-/* About Page Core Values & Why Choose Us Checkboxes */
+/* About Core Values & Checkboxes */
 .vmg-point-card {
   border-radius: 16px;
   padding: 24px 16px !important;
@@ -383,7 +663,7 @@ a.header-calendar:hover {
 .vmg-point-card:hover {
   transform: translateY(-8px) !important;
   background-color: #fafafa;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
 
 .vmg-point-card .vmg-point-icon {
@@ -402,7 +682,7 @@ a.header-calendar:hover {
   transform: translateX(6px);
 }
 
-/* Restoration Process Cards & Gallery Items */
+/* Restoration Process Cards */
 .process-card {
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.4s ease,
@@ -412,7 +692,7 @@ a.header-calendar:hover {
 
 .process-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 45px rgba(231, 0, 0, 0.12) !important;
+  box-shadow: 0 20px 45px rgba(231, 0, 0, 0.14) !important;
   border-color: rgba(231, 0, 0, 0.35);
 }
 
@@ -425,7 +705,7 @@ a.header-calendar:hover {
   box-shadow: 0 8px 20px rgba(231, 0, 0, 0.35);
 }
 
-/* Contact Page Info Cards */
+/* Contact Info Cards */
 .info-card {
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.4s ease,
@@ -443,4 +723,280 @@ a.header-calendar:hover {
 
 .info-card:hover .info-icon {
   transform: scale(1.15) translateY(-3px);
+}
+
+/* Modal Pop-In Animation */
+@keyframes vmgModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.vmg-modal-animate {
+  animation: vmgModalPop 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ============================================================================
+   9. SUPER RESPONSIVENESS LAYER (Phones 320px -> Tablets -> Ultrawide)
+   ============================================================================ */
+
+/* Large Tablets & Compact Laptops (<= 1399px) */
+@media (max-width: 1399px) {
+  .service-card {
+    flex-direction: column !important;
+    gap: 24px !important;
+    padding: 32px 24px !important;
+  }
+  .service-card.service-card--reversed {
+    flex-direction: column-reverse !important;
+  }
+  .service-card .col-xxl-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+  .service-card .service-img {
+    width: 100% !important;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 16px;
+  }
+}
+
+/* Tablets & Small Laptops (<= 991px) */
+@media (max-width: 991px) {
+  #wrapper h1,
+  #wrapper h2 {
+    font-size: clamp(24px, 4.5vw, 34px) !important;
+    line-height: 1.18 !important;
+  }
+  #wrapper h1.careers-hero-title {
+    font-size: clamp(32px, 6.2vw, 52px) !important;
+    line-height: 1.08 !important;
+  }
+  #wrapper h2.projects-section-title,
+  #wrapper h2.careers-section-title {
+    font-size: clamp(26px, 4.8vw, 38px) !important;
+  }
+  .section-services-main-content,
+  .section-home-testimonials,
+  .section-about-who-we-are,
+  .section-about-mission-vision,
+  .values-section,
+  .section-why-us,
+  .section-call-to-action-bottom {
+    padding-top: 68px !important;
+    padding-bottom: 68px !important;
+  }
+  .metrics-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 22px !important;
+  }
+  .about-who-we-are-brandon-dawson-card,
+  .section-why-us .review-box {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin-top: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .section-team-member .row {
+    gap: 32px;
+  }
+  .section-team-member .team-member-img img {
+    max-height: 480px;
+    width: auto !important;
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+  }
+  .left-border {
+    border-left: none !important;
+    padding-left: 0 !important;
+    margin-top: 24px;
+  }
+  .vmg-point-para {
+    width: 100% !important;
+  }
+  .services-hero-video-wrapper {
+    max-height: 60vh;
+  }
+}
+
+/* Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+  .navbar-black-bg {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .header-logo-wrapper img {
+    max-height: 44px;
+    width: auto;
+  }
+  .mobile-menu.open {
+    width: min(88vw, 380px) !important;
+    padding: 24px 20px !important;
+    overflow-y: auto;
+  }
+  .vmg-hero-scroll-cue {
+    bottom: 12px;
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+  .metrics-number {
+    font-size: clamp(44px, 12vw, 68px) !important;
+    line-height: 1 !important;
+    margin-bottom: 10px;
+  }
+  .section-metrics {
+    padding: 64px 16px !important;
+  }
+  .section-metrics .row.pt-4.pb-4 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .section-services {
+    padding: 64px 0 !important;
+  }
+  .servicesSwiper {
+    margin-top: 36px !important;
+  }
+  .section-social-trust {
+    padding: 48px 16px !important;
+  }
+  .social-trust-title {
+    font-size: 20px !important;
+    line-height: 1.45 !important;
+  }
+  .service-card {
+    padding: 24px 16px !important;
+    margin-bottom: 24px !important;
+  }
+  .service-card .service-title {
+    font-size: 22px !important;
+  }
+  .testimonial-card {
+    padding: 24px 20px !important;
+  }
+  .section-contact-info .info-card {
+    margin-bottom: 16px;
+  }
+  .section-contact-maps #map,
+  .section-contact-maps > div {
+    height: 300px !important;
+  }
+  .footer-first-row {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    gap: 28px;
+  }
+  .footer-widget-wrapper {
+    border-left: none !important;
+    padding-left: 0 !important;
+  }
+  .restoration-checklist {
+    gap: 14px !important;
+    flex-direction: column;
+    align-items: center;
+  }
+  .restoration-checklist li {
+    font-size: 1rem !important;
+  }
+  .project-filters {
+    gap: 8px !important;
+  }
+  .project-filter-btn {
+    font-size: 12px !important;
+    padding: 7px 14px !important;
+  }
+  .careers-hero-content,
+  .projects-hero-section .careers-hero-content {
+    padding-top: 88px !important;
+    padding-bottom: 64px !important;
+  }
+  .careers-resume-banner {
+    padding: 24px 18px !important;
+  }
+  .careers-video-wrapper {
+    max-width: 280px !important;
+  }
+  .form-bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 18px;
+  }
+  .form-submission,
+  .form-submission .btn-wrapper,
+  .form-submission button.global-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Compact Mobile Devices (<= 576px) — Zero Floating Button Collisions */
+@media (max-width: 576px) {
+  .vmg-floating-admin-pill {
+    bottom: 18px;
+    left: 14px;
+    padding: 9px 14px;
+    font-size: 11px;
+    gap: 7px;
+    max-width: calc(100vw - 102px);
+  }
+  #callBtn,
+  #backToTopBtn {
+    width: 54px !important;
+    height: 54px !important;
+    right: 16px !important;
+    font-size: 22px !important;
+  }
+  #callBtn {
+    bottom: 18px !important;
+  }
+  #backToTopBtn {
+    bottom: 82px !important;
+  }
+  h2.home-about-title,
+  h2.metrics-title,
+  h2.testi-title,
+  h2.why-title {
+    font-size: 26px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 1px !important;
+  }
+  .global-btn,
+  .global-btn-white,
+  .global-btn-white-metrics {
+    font-size: 13px !important;
+    padding: 12px 22px !important;
+  }
+  .project-card-image-box {
+    height: 290px !important;
+  }
+}
+
+/* Scrollbar Hide Utility for Admin Mobile Tab Bar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

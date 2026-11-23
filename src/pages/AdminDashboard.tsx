@@ -174,8 +174,8 @@ export function AdminDashboard() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="mt-7 flex flex-wrap gap-2">
+          {/* Navigation Tabs (Horizontally scrollable on mobile, wrapping on desktop) */}
+          <div className="no-scrollbar mt-7 flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
             {[
               { id: 'ai-blog', label: 'AI Blog Studio & Auto-Publisher', icon: Wand2, count: blogs.length },
               { id: 'team', label: 'Team Members 360°', icon: Users, count: `${team.filter((t) => t.visible).length}/${team.length}` },
@@ -191,7 +191,7 @@ export function AdminDashboard() {
                   key={t.id}
                   type="button"
                   onClick={() => setActiveTab(t.id as AdminTab)}
-                  className={`inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 text-xs font-bold transition ${
+                  className={`inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-4 text-xs font-bold transition ${
                     active
                       ? 'bg-[#E70000] text-white shadow-lg shadow-[#E70000]/30'
                       : 'bg-white/10 text-zinc-300 hover:bg-white/15 hover:text-white'
@@ -1098,7 +1098,7 @@ export function AdminDashboard() {
           aria-modal="true"
           className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 text-[#121214] shadow-2xl sm:p-8">
+          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <h3 className="font-heading text-xl font-extrabold">
                 {editingMember.name ? `Edit ${editingMember.name}` : 'Add New Team Member'}
@@ -1321,7 +1321,7 @@ export function AdminDashboard() {
           aria-modal="true"
           className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
         >
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-6 text-[#121214] shadow-2xl sm:p-8">
+          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <h3 className="font-heading text-xl font-extrabold">
                 {editingBlog.title ? 'Edit Blog Article' : 'New Blog Article'}
@@ -1438,7 +1438,7 @@ export function AdminDashboard() {
           aria-modal="true"
           className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 text-[#121214] shadow-2xl sm:p-8">
+          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <h3 className="font-heading text-xl font-extrabold">
                 {editingProject.name || 'Add Featured Project'}
@@ -1561,7 +1561,7 @@ export function AdminDashboard() {
           aria-modal="true"
           className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
         >
-          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl bg-white p-6 text-[#121214] shadow-2xl sm:p-8">
+          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
               <h3 className="font-heading text-xl font-extrabold">
                 {editingJob.title || 'Post Open Position'}
