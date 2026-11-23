@@ -1,4 +1,4 @@
-﻿
+
 img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 /*# sourceURL=wp-img-auto-sizes-contain-inline-css */
 
@@ -491,12 +491,13 @@ h2.projects-section-title--white {
 }
 
 .project-modal-title {
-    font-family: "BBH Sans Bartle", sans-serif !important;
+    font-family: "Sora", sans-serif !important;
     color: #ffffff;
-    font-size: 22px;
+    font-size: clamp(16px, 2vw, 22px);
+    font-weight: 700;
     margin: 0;
     text-align: center;
-    letter-spacing: 1.5px;
+    letter-spacing: -0.02em;
 }
 
 .project-modal-counter {
@@ -2617,14 +2618,14 @@ h2.mission-title {
 /* TIPOGRAFÍA GLOBAL                */
 /* -------------------------------- */
 
-#wrapper h1, #wrapper h2 {
+#wrapper h1:not(.vmg-admin-scope *), #wrapper h2:not(.vmg-admin-scope *) {
     font-family: "BBH Sans Bartle", sans-serif;
     font-weight: 200;
     font-style: normal;
     letter-spacing: 2px !important;
 }
 
-#wrapper p, #wrapper h3, #wrapper h4, #wrapper h5, #wrapper h6, #wrapper span, #wrapper a {
+#wrapper p:not(.vmg-admin-scope *), #wrapper h3:not(.vmg-admin-scope *), #wrapper h4:not(.vmg-admin-scope *), #wrapper h5:not(.vmg-admin-scope *), #wrapper h6:not(.vmg-admin-scope *), #wrapper span:not(.vmg-admin-scope *), #wrapper a:not(.vmg-admin-scope *) {
     font-family: "Atkinson Hyperlegible Next", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -2633,7 +2634,7 @@ h2.mission-title {
 }
 
 @media (min-width: 992px) {
-    #wrapper h1, #wrapper h2 {
+    #wrapper h1:not(.vmg-admin-scope *), #wrapper h2:not(.vmg-admin-scope *) {
         font-size: 33px !important;
     }
     #wrapper h1.careers-hero-title {

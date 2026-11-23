@@ -86,17 +86,23 @@ export function EstimatingConsultationModal() {
       }}
       className="vmg-admin-scope fixed inset-0 z-[9995] flex items-center justify-center bg-[#121214]/85 p-3 sm:p-4 backdrop-blur-md"
     >
-      <div className="vmg-modal-animate relative max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/15 bg-[#18181c] p-5 text-white shadow-2xl sm:p-8">
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+      <div className="vmg-modal-animate relative max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/15 bg-[#16161a] text-white shadow-[0_32px_90px_rgba(0,0,0,0.75)]">
+        <div
+          className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-5 sm:px-8 sm:py-6"
+          style={{
+            background:
+              'radial-gradient(circle at 92% 20%, rgba(231, 0, 0, 0.22), transparent 55%), #121215',
+          }}
+        >
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#E70000]/40 bg-[#E70000]/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#ff6b6b]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E70000]/45 bg-[#E70000]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#ff7676]">
               <Wrench className="h-3.5 w-3.5" />
               <span>Direct Estimating Software Integration</span>
             </div>
-            <h2 className="mt-2 font-heading text-2xl font-bold tracking-tight text-white">
+            <h2 className="mt-2.5 font-heading text-xl font-extrabold tracking-tight text-white sm:text-2xl">
               Request Consultation &amp; Project Estimate
             </h2>
-            <p className="mt-1 text-xs text-zinc-400">
+            <p className="mt-1 font-mono-code text-[11.5px] text-zinc-400">
               Connected directly to VMG NeXT Estimating Pipeline ({settings.estimatingApiKey.slice(0, 14)}...)
             </p>
           </div>
@@ -104,13 +110,13 @@ export function EstimatingConsultationModal() {
             type="button"
             onClick={closeEstimateModal}
             aria-label="Close modal"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300 transition hover:bg-[#E70000] hover:text-white"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-zinc-300 transition hover:border-[#E70000] hover:bg-[#E70000] hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 p-5 sm:p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-300">

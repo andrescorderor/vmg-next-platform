@@ -36,6 +36,25 @@ const PRESET_PROMPTS = [
   'Top 5 Preconstruction Estimating Benchmarks for General Contractors in Utah',
 ];
 
+const BLOG_COVER_PRESETS = [
+  {
+    label: 'Tilt-Up Commercial Build',
+    url: 'https://vmgnext.com/wp-content/uploads/2025/12/20220813_104243-scaled.jpg',
+  },
+  {
+    label: 'Site Concrete Pour',
+    url: 'https://vmgnext.com/wp-content/uploads/2025/09/IMG-20250925-WA0026.jpg',
+  },
+  {
+    label: 'Architectural Facade',
+    url: 'https://vmgnext.com/wp-content/uploads/2025/09/ChatGPT-Image-Sep-17-2025-12_27_14-PM.png',
+  },
+  {
+    label: 'Structural Restoration',
+    url: 'https://vmgnext.com/wp-content/uploads/2025/12/20220829_084805-scaled.jpg',
+  },
+];
+
 export function AdminDashboard() {
   const {
     settings,
@@ -74,6 +93,25 @@ export function AdminDashboard() {
   const [aiCover, setAiCover] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [blogEditorView, setBlogEditorView] = useState<'split' | 'code' | 'preview'>('split');
+  const [blogKeywordsDraft, setBlogKeywordsDraft] = useState('');
+
+  const openBlogEditor = (post: BlogPost) => {
+    setEditingBlog({ ...post });
+    setBlogKeywordsDraft((post.seoKeywords || []).join(', '));
+    setBlogEditorView('split');
+  };
+
+  const insertBlogHtmlBlock = (snippet: string) => {
+    setEditingBlog((prev) =>
+      prev
+        ? {
+            ...prev,
+            contentHtml: `${prev.contentHtml.trimEnd()}\n${snippet}`,
+          }
+        : null
+    );
+  };
 
   // Team Member Editor Modal State
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
@@ -122,7 +160,7 @@ export function AdminDashboard() {
         autoPublish,
       });
       if (!autoPublish) {
-        setEditingBlog(generated);
+        openBlogEditor(generated);
       }
     } finally {
       setAiGenerating(false);
@@ -404,7 +442,7 @@ export function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() =>
-                    setEditingBlog({
+                    openBlogEditor({
                       id: `blog-${Date.now()}`,
                       slug: '',
                       title: '',
@@ -413,68 +451,77 @@ export function AdminDashboard() {
                       publishedAt: new Date().toISOString().slice(0, 10),
                       readTime: '5 min read',
                       author: 'Victor Galvan · VMG NeXT',
-                      coverImage: 'https://vmgnext.com/wp-content/uploads/2025/12/20220813_104243-scaled.jpg',
-                      contentHtml: '<p>Write your article content here...</p>',
+                      coverImage: BLOG_COVER_PRESETS[0].url,
+                      contentHtml:
+                        '<p>Write an engaging introduction focused on Utah commercial construction...</p>\n<h2>Key Engineering Takeaways</h2>\n<ul>\n  <li><strong>Structural Precision:</strong> Engineered tolerances for demanding commercial scopes.</li>\n</ul>',
+                      seoKeywords: ['Commercial Concrete Utah', 'VMG NeXT'],
                       orderIndex: 1,
                     })
                   }
-                  className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-[#121214] px-4 text-xs font-bold text-white hover:bg-[#E70000]"
+                  className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-[#121214] px-4 text-xs font-bold text-white transition hover:bg-[#E70000]"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Manual Post</span>
                 </button>
               </div>
 
-              <div className="mt-5 space-y-4">
+              <div className="mt-5 space-y-3.5">
                 {blogs.map((post) => (
                   <div
                     key={post.id}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-zinc-200 bg-[#f7f7f8] p-4 transition hover:border-[#E70000]"
+                    className="group flex flex-col gap-3.5 rounded-2xl border border-zinc-200 bg-[#f8f9fb] p-3.5 transition hover:border-[#E70000]/40 hover:bg-white hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex min-w-0 flex-1 items-start gap-3.5 sm:items-center">
                       <img
                         src={post.coverImage}
                         alt={post.title}
-                        className="h-16 w-20 shrink-0 rounded-xl object-cover"
+                        className="h-20 w-24 shrink-0 rounded-xl border border-zinc-200 object-cover"
                       />
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[11px] font-bold uppercase text-[#E70000]">
+                          <span className="rounded-full bg-[#121214] px-2.5 py-0.5 font-mono-code text-[10px] font-bold uppercase tracking-wider text-white">
                             {post.category}
                           </span>
-                          <span className="text-[11px] text-zinc-400">· {post.publishedAt}</span>
+                          <span className="font-mono-code text-[11px] text-zinc-500">
+                            {post.publishedAt} · {post.readTime}
+                          </span>
                           {post.aiGenerated && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-[#E70000]/10 px-2 py-0.5 text-[10px] font-bold text-[#E70000]">
                               <Sparkles className="h-2.5 w-2.5" /> AI Auto-Published
                             </span>
                           )}
                         </div>
-                        <h4 className="mt-1 font-heading text-sm font-bold text-[#121214]">
+                        <h4 className="mt-1.5 truncate font-heading text-sm font-bold text-[#121214]">
                           {post.title}
                         </h4>
-                        <Link
-                          to={`/blog/${post.slug}`}
-                          className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-[#E70000]"
-                        >
-                          <span>View live article</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">
+                          {post.excerpt}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center justify-end gap-2 border-t border-zinc-200/70 pt-2.5 sm:border-t-0 sm:pt-0">
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-zinc-300 bg-white px-3 text-xs font-bold text-zinc-700 transition hover:border-[#121214] hover:text-[#121214]"
+                        title="Open public article"
+                      >
+                        <span>View</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
                       <button
                         type="button"
-                        onClick={() => setEditingBlog(post)}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-300 bg-white text-zinc-700 hover:border-[#E70000] hover:text-[#E70000]"
+                        onClick={() => openBlogEditor(post)}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#121214] px-3 text-xs font-bold text-white transition hover:bg-[#E70000]"
                         title="Edit article"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
+                        <span>Edit</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => deleteBlogPost(post.id)}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-300 bg-white text-rose-600 hover:bg-rose-50"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-300 bg-white text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
                         title="Delete article"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -1096,26 +1143,43 @@ export function AdminDashboard() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingMember(null);
+          }}
+          className="fixed inset-0 z-[9995] flex items-center justify-center bg-[#0f0f12]/80 p-3 backdrop-blur-md sm:p-5"
         >
-          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <h3 className="font-heading text-xl font-extrabold">
-                {editingMember.name ? `Edit ${editingMember.name}` : 'Add New Team Member'}
-              </h3>
+          <div className="vmg-modal-animate max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white text-[#121214] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
+            <div
+              className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 text-white sm:px-7 sm:py-5"
+              style={{
+                background:
+                  'radial-gradient(circle at 92% 20%, rgba(231, 0, 0, 0.24), transparent 55%), #141416',
+              }}
+            >
+              <div>
+                <span className="font-mono-code text-[10.5px] font-bold uppercase tracking-widest text-[#ff6b6b]">
+                  Team Member 360°
+                </span>
+                <h3 className="mt-0.5 font-heading text-lg font-extrabold text-white sm:text-xl">
+                  {editingMember.name ? `Edit ${editingMember.name}` : 'Add New Team Member'}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingMember(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100"
+                aria-label="Close team modal"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-zinc-200 transition hover:border-[#E70000] hover:bg-[#E70000] hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="space-y-4 p-5 sm:p-7">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Full Name *</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Full Name *
+                  </span>
                   <input
                     type="text"
                     value={editingMember.name}
@@ -1126,23 +1190,27 @@ export function AdminDashboard() {
                         slug: editingMember.slug || slugify(e.target.value),
                       })
                     }
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm font-medium text-[#121214]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Role / Title *</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Role / Title *
+                  </span>
                   <input
                     type="text"
                     value={editingMember.role}
                     onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm font-medium text-[#121214]"
                   />
                 </label>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Department</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Department
+                  </span>
                   <select
                     value={editingMember.department}
                     onChange={(e) =>
@@ -1151,7 +1219,7 @@ export function AdminDashboard() {
                         department: e.target.value as TeamMember['department'],
                       })
                     }
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3 text-sm text-[#121214]"
                   >
                     <option value="Leadership">Leadership</option>
                     <option value="Operations & Restoration">Operations &amp; Restoration</option>
@@ -1160,12 +1228,14 @@ export function AdminDashboard() {
                   </select>
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Profile URL Slug</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Profile URL Slug
+                  </span>
                   <input
                     type="text"
                     value={editingMember.slug}
                     onChange={(e) => setEditingMember({ ...editingMember, slug: slugify(e.target.value) })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 font-mono-code text-xs"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 font-mono-code text-xs text-[#121214]"
                   />
                 </label>
               </div>
@@ -1173,17 +1243,17 @@ export function AdminDashboard() {
               {/* Card Photo & Detail Portrait Uploaders */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3.5">
-                  <span className="block text-xs font-bold uppercase text-zinc-700">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-zinc-700">
                     1. Card Preview Photo (/team)
                   </span>
-                  <div className="mt-2 flex items-center gap-3">
+                  <div className="mt-2.5 flex items-center gap-3">
                     <img
                       src={editingMember.cardPhoto}
                       alt=""
-                      className="h-16 w-14 rounded-lg bg-zinc-900 object-cover object-top"
+                      className="h-16 w-14 shrink-0 rounded-xl bg-zinc-900 object-cover object-top"
                     />
-                    <div className="flex-1 space-y-1.5">
-                      <label className="inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg bg-[#121214] px-3 text-[11px] font-bold text-white hover:bg-[#E70000]">
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <label className="inline-flex min-h-[36px] w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#121214] px-3 text-[11px] font-bold text-white transition hover:bg-[#E70000]">
                         <ImagePlus className="h-3.5 w-3.5" />
                         <span>Upload File</span>
                         <input
@@ -1204,24 +1274,24 @@ export function AdminDashboard() {
                         onChange={(e) =>
                           setEditingMember({ ...editingMember, cardPhoto: e.target.value })
                         }
-                        className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-[11px]"
+                        className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] text-[#121214]"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3.5">
-                  <span className="block text-xs font-bold uppercase text-zinc-700">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-zinc-700">
                     2. Detail Biography Photo
                   </span>
-                  <div className="mt-2 flex items-center gap-3">
+                  <div className="mt-2.5 flex items-center gap-3">
                     <img
                       src={editingMember.detailPhoto || editingMember.cardPhoto}
                       alt=""
-                      className="h-16 w-14 rounded-lg bg-zinc-900 object-cover object-top"
+                      className="h-16 w-14 shrink-0 rounded-xl bg-zinc-900 object-cover object-top"
                     />
-                    <div className="flex-1 space-y-1.5">
-                      <label className="inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg bg-[#121214] px-3 text-[11px] font-bold text-white hover:bg-[#E70000]">
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <label className="inline-flex min-h-[36px] w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#121214] px-3 text-[11px] font-bold text-white transition hover:bg-[#E70000]">
                         <ImagePlus className="h-3.5 w-3.5" />
                         <span>Upload File</span>
                         <input
@@ -1242,7 +1312,7 @@ export function AdminDashboard() {
                         onChange={(e) =>
                           setEditingMember({ ...editingMember, detailPhoto: e.target.value })
                         }
-                        className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-[11px]"
+                        className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-[11px] text-[#121214]"
                       />
                     </div>
                   </div>
@@ -1250,47 +1320,47 @@ export function AdminDashboard() {
               </div>
 
               <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">
+                <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Biography Paragraph 1
                 </span>
                 <textarea
                   rows={3}
                   value={editingMember.bioPara1}
                   onChange={(e) => setEditingMember({ ...editingMember, bioPara1: e.target.value })}
-                  className="w-full rounded-xl border border-zinc-300 p-3 text-sm"
+                  className="w-full rounded-xl border border-zinc-300 bg-white p-3.5 text-sm leading-relaxed text-[#121214]"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">
+                <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Biography Paragraph 2
                 </span>
                 <textarea
                   rows={3}
                   value={editingMember.bioPara2}
                   onChange={(e) => setEditingMember({ ...editingMember, bioPara2: e.target.value })}
-                  className="w-full rounded-xl border border-zinc-300 p-3 text-sm"
+                  className="w-full rounded-xl border border-zinc-300 bg-white p-3.5 text-sm leading-relaxed text-[#121214]"
                 />
               </label>
 
-              <div className="flex items-center justify-between border-t border-zinc-200 pt-4">
-                <label className="flex items-center gap-2 text-xs font-bold">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-200 pt-4">
+                <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-[#121214]">
                   <input
                     type="checkbox"
                     checked={editingMember.visible}
                     onChange={(e) =>
                       setEditingMember({ ...editingMember, visible: e.target.checked })
                     }
-                    className="h-4 w-4 accent-[#E70000]"
+                    className="h-4 w-4 rounded accent-[#E70000]"
                   />
                   <span>Visible on public Team page</span>
                 </label>
 
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setEditingMember(null)}
-                    className="min-h-[42px] rounded-full border border-zinc-300 px-5 text-xs font-bold"
+                    className="min-h-[42px] rounded-full border border-zinc-300 bg-white px-5 text-xs font-bold text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50"
                   >
                     Cancel
                   </button>
@@ -1301,7 +1371,7 @@ export function AdminDashboard() {
                       saveTeamMember(editingMember);
                       setEditingMember(null);
                     }}
-                    className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white"
+                    className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#E70000]/25 transition hover:bg-[#121214]"
                   >
                     Save Team Member
                   </button>
@@ -1313,115 +1383,410 @@ export function AdminDashboard() {
       )}
 
       {/* ====================================================================
-          MODAL: EDIT BLOG POST
+          MODAL: EDITORIAL BLOG COMPOSER & LIVE PREVIEW
           ==================================================================== */}
       {editingBlog && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingBlog(null);
+          }}
+          className="fixed inset-0 z-[9995] flex items-center justify-center bg-[#0f0f12]/80 p-3 backdrop-blur-md sm:p-5"
         >
-          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <h3 className="font-heading text-xl font-extrabold">
-                {editingBlog.title ? 'Edit Blog Article' : 'New Blog Article'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setEditingBlog(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Article Title *</span>
-                <input
-                  type="text"
-                  value={editingBlog.title}
-                  onChange={(e) =>
-                    setEditingBlog({
-                      ...editingBlog,
-                      title: e.target.value,
-                      slug: editingBlog.slug || slugify(e.target.value),
-                    })
-                  }
-                  className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm font-bold"
-                />
-              </label>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Category</span>
-                  <input
-                    type="text"
-                    value={editingBlog.category}
-                    onChange={(e) => setEditingBlog({ ...editingBlog, category: e.target.value })}
-                    className="min-h-[42px] w-full rounded-xl border border-zinc-300 px-3 text-xs"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Publish Date</span>
-                  <input
-                    type="date"
-                    value={editingBlog.publishedAt}
-                    onChange={(e) => setEditingBlog({ ...editingBlog, publishedAt: e.target.value })}
-                    className="min-h-[42px] w-full rounded-xl border border-zinc-300 px-3 text-xs"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Author</span>
-                  <input
-                    type="text"
-                    value={editingBlog.author}
-                    onChange={(e) => setEditingBlog({ ...editingBlog, author: e.target.value })}
-                    className="min-h-[42px] w-full rounded-xl border border-zinc-300 px-3 text-xs"
-                  />
-                </label>
+          <div className="vmg-modal-animate flex max-h-[92dvh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-zinc-200 bg-white text-[#121214] shadow-[0_32px_90px_rgba(0,0,0,0.48)]">
+            {/* Sticky Obsidian Studio Header */}
+            <div
+              className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 text-white sm:px-7 sm:py-5"
+              style={{
+                background:
+                  'radial-gradient(circle at 92% 20%, rgba(231, 0, 0, 0.25), transparent 55%), #141416',
+              }}
+            >
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono-code text-[10.5px] font-bold uppercase tracking-widest text-[#ff6b6b]">
+                    Editorial &amp; SEO Blog Composer
+                  </span>
+                  {editingBlog.aiGenerated && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#E70000]/25 px-2.5 py-0.5 text-[10px] font-bold text-[#ffdede]">
+                      <Sparkles className="h-2.5 w-2.5" /> AI Generated Draft
+                    </span>
+                  )}
+                </div>
+                <h3 className="mt-0.5 font-heading text-lg font-extrabold text-white sm:text-xl">
+                  {editingBlog.title ? editingBlog.title : 'Compose New Field Journal Article'}
+                </h3>
               </div>
 
-              <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">SEO Excerpt</span>
-                <textarea
-                  rows={2}
-                  value={editingBlog.excerpt}
-                  onChange={(e) => setEditingBlog({ ...editingBlog, excerpt: e.target.value })}
-                  className="w-full rounded-xl border border-zinc-300 p-3 text-xs"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">
-                  Article Content (HTML / Paragraphs / H2 / Bullet Lists)
-                </span>
-                <textarea
-                  rows={9}
-                  value={editingBlog.contentHtml}
-                  onChange={(e) => setEditingBlog({ ...editingBlog, contentHtml: e.target.value })}
-                  className="w-full rounded-xl border border-zinc-300 p-3 font-mono-code text-xs"
-                />
-              </label>
-
-              <div className="flex justify-end gap-3 border-t border-zinc-200 pt-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex rounded-full border border-white/15 bg-white/5 p-1">
+                  {(
+                    [
+                      { id: 'split', label: 'Split View' },
+                      { id: 'code', label: 'Editor' },
+                      { id: 'preview', label: 'Live Preview' },
+                    ] as const
+                  ).map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setBlogEditorView(mode.id)}
+                      className={`rounded-full px-3 py-1 text-[11px] font-bold transition ${
+                        blogEditorView === mode.id
+                          ? 'bg-[#E70000] text-white shadow'
+                          : 'text-zinc-300 hover:text-white'
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
+                </div>
                 <button
                   type="button"
                   onClick={() => setEditingBlog(null)}
-                  className="min-h-[42px] rounded-full border border-zinc-300 px-5 text-xs font-bold"
+                  aria-label="Close blog modal"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-zinc-200 transition hover:border-[#E70000] hover:bg-[#E70000] hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 space-y-5 overflow-y-auto p-5 sm:p-7">
+              {/* Top Metadata & Cover Studio */}
+              <div className="grid gap-5 lg:grid-cols-12">
+                <div className="space-y-4 lg:col-span-7">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                      Article Headline *
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Why Tilt-Up Concrete Speeds Up Industrial Delivery in Utah"
+                      value={editingBlog.title}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingBlog({
+                          ...editingBlog,
+                          title: val,
+                          slug: editingBlog.slug ? editingBlog.slug : slugify(val),
+                        });
+                      }}
+                      className="min-h-[46px] w-full rounded-xl border border-zinc-300 bg-white px-4 text-sm font-bold text-[#121214]"
+                    />
+                  </label>
+
+                  <div className="grid gap-3.5 sm:grid-cols-3">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        Category
+                      </span>
+                      <select
+                        value={editingBlog.category}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, category: e.target.value })
+                        }
+                        className="min-h-[42px] w-full rounded-xl border border-zinc-300 bg-white px-3 text-xs font-semibold text-[#121214]"
+                      >
+                        <option value="Commercial Construction">Commercial Construction</option>
+                        <option value="Tilt-Up Concrete">Tilt-Up Concrete</option>
+                        <option value="Structural Concrete">Structural Concrete</option>
+                        <option value="Structural Restoration">Structural Restoration</option>
+                        <option value="Educational & Institutional">
+                          Educational &amp; Institutional
+                        </option>
+                        {![
+                          'Commercial Construction',
+                          'Tilt-Up Concrete',
+                          'Structural Concrete',
+                          'Structural Restoration',
+                          'Educational & Institutional',
+                        ].includes(editingBlog.category) && (
+                          <option value={editingBlog.category}>{editingBlog.category}</option>
+                        )}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        Publish Date
+                      </span>
+                      <input
+                        type="date"
+                        value={editingBlog.publishedAt}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, publishedAt: e.target.value })
+                        }
+                        className="min-h-[42px] w-full rounded-xl border border-zinc-300 bg-white px-3 text-xs text-[#121214]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        Read Time
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="5 min read"
+                        value={editingBlog.readTime}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, readTime: e.target.value })
+                        }
+                        className="min-h-[42px] w-full rounded-xl border border-zinc-300 bg-white px-3 text-xs text-[#121214]"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        Author Byline
+                      </span>
+                      <input
+                        type="text"
+                        value={editingBlog.author}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, author: e.target.value })
+                        }
+                        className="min-h-[42px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-xs font-medium text-[#121214]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        URL Slug (/blog/...)
+                      </span>
+                      <input
+                        type="text"
+                        value={editingBlog.slug}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, slug: slugify(e.target.value) })
+                        }
+                        className="min-h-[42px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 font-mono-code text-xs text-[#121214]"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid gap-3.5 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        SEO Excerpt Summary
+                      </span>
+                      <textarea
+                        rows={2}
+                        value={editingBlog.excerpt}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, excerpt: e.target.value })
+                        }
+                        className="w-full rounded-xl border border-zinc-300 bg-white p-3 text-xs leading-relaxed text-[#121214]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                        SEO Keywords (Comma separated)
+                      </span>
+                      <textarea
+                        rows={2}
+                        placeholder="Utah Tilt-Up, Salt Lake City Commercial Concrete"
+                        value={blogKeywordsDraft}
+                        onChange={(e) => setBlogKeywordsDraft(e.target.value)}
+                        className="w-full rounded-xl border border-zinc-300 bg-white p-3 text-xs leading-relaxed text-[#121214]"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Cover Photo Studio */}
+                <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-[#f8f9fb] p-4 lg:col-span-5">
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                      Cover Image Studio
+                    </span>
+                    <div className="mt-2.5 overflow-hidden rounded-xl border border-zinc-200 bg-[#141416]">
+                      <img
+                        src={editingBlog.coverImage}
+                        alt={editingBlog.title || 'Article cover preview'}
+                        className="h-44 w-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-xl bg-[#121214] px-3.5 text-xs font-bold text-white transition hover:bg-[#E70000]">
+                        <ImagePlus className="h-3.5 w-3.5" />
+                        <span>Upload Cover</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) =>
+                            handleImageUpload(e, (url) =>
+                              setEditingBlog({ ...editingBlog, coverImage: url })
+                            )
+                          }
+                          className="sr-only"
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Paste image URL..."
+                        value={editingBlog.coverImage}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, coverImage: e.target.value })
+                        }
+                        className="min-h-[38px] min-w-0 flex-1 rounded-xl border border-zinc-300 bg-white px-3 text-xs text-[#121214]"
+                      />
+                    </div>
+
+                    <div>
+                      <span className="block font-mono-code text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                        Quick-Pick Real VMG NeXT Photos:
+                      </span>
+                      <div className="mt-1.5 grid grid-cols-4 gap-2">
+                        {BLOG_COVER_PRESETS.map((preset) => (
+                          <button
+                            key={preset.url}
+                            type="button"
+                            onClick={() =>
+                              setEditingBlog({ ...editingBlog, coverImage: preset.url })
+                            }
+                            title={preset.label}
+                            className={`overflow-hidden rounded-lg border-2 transition ${
+                              editingBlog.coverImage === preset.url
+                                ? 'border-[#E70000] ring-2 ring-[#E70000]/25'
+                                : 'border-transparent opacity-75 hover:opacity-100'
+                            }`}
+                          >
+                            <img
+                              src={preset.url}
+                              alt={preset.label}
+                              className="h-11 w-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Article Content Studio: Formatting Bar + Split Code / Live Preview */}
+              <div className="rounded-2xl border border-zinc-200 bg-[#f8f9fb] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-3">
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-wider text-zinc-800">
+                      Article Body &amp; Live Editorial Preview
+                    </span>
+                    <span className="text-[11px] text-zinc-500">
+                      Insert formatted blocks with 1 click and inspect how your article renders on <code>/blog</code>.
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      {
+                        label: '+ H2 Section',
+                        code: '\n<h2>New Technical Section Heading</h2>\n<p>Explain structural details, mix tolerances, and schedule impact...</p>',
+                      },
+                      {
+                        label: '+ H3 Subhead',
+                        code: '\n<h3>Key Engineering Consideration</h3>',
+                      },
+                      {
+                        label: '+ Quote',
+                        code: '\n<blockquote>"Disciplined preconstruction protects schedule velocity and structural integrity."</blockquote>',
+                      },
+                      {
+                        label: '+ Bullet List',
+                        code: '\n<ul>\n  <li><strong>Milestone Control:</strong> Engineered sequencing across footings and slabs.</li>\n  <li><strong>Quality Assurance:</strong> Laser-screed flatness &amp; core verification.</li>\n</ul>',
+                      },
+                      {
+                        label: '+ Paragraph',
+                        code: '\n<p>Add additional field perspective for general contractors across the Wasatch Front.</p>',
+                      },
+                    ].map((tool) => (
+                      <button
+                        key={tool.label}
+                        type="button"
+                        onClick={() => insertBlogHtmlBlock(tool.code)}
+                        className="rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 font-mono-code text-[11px] font-bold text-[#121214] transition hover:border-[#E70000] hover:bg-[#fff5f5] hover:text-[#E70000]"
+                      >
+                        {tool.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className={`mt-4 grid gap-4 ${
+                    blogEditorView === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1'
+                  }`}
+                >
+                  {blogEditorView !== 'preview' && (
+                    <div className="flex flex-col">
+                      <span className="mb-1.5 font-mono-code text-[10.5px] font-bold uppercase tracking-wider text-zinc-500">
+                        HTML Content Source
+                      </span>
+                      <textarea
+                        rows={13}
+                        value={editingBlog.contentHtml}
+                        onChange={(e) =>
+                          setEditingBlog({ ...editingBlog, contentHtml: e.target.value })
+                        }
+                        className="min-h-[320px] w-full flex-1 rounded-2xl border border-zinc-300 bg-white p-4 font-mono-code text-xs leading-relaxed text-[#121214]"
+                      />
+                    </div>
+                  )}
+
+                  {blogEditorView !== 'code' && (
+                    <div className="flex flex-col">
+                      <span className="mb-1.5 font-mono-code text-[10.5px] font-bold uppercase tracking-wider text-[#E70000]">
+                        Live Public Article Preview
+                      </span>
+                      <div className="vmg-blog-editor-preview max-h-[380px] min-h-[320px] flex-1 overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+                        <div
+                          className="vmg-blog-prose"
+                          dangerouslySetInnerHTML={{ __html: editingBlog.contentHtml }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Sticky Bottom Action Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 bg-zinc-50 px-5 py-4 sm:px-7">
+              <div className="font-mono-code text-[11px] text-zinc-500">
+                Slug: <code>/blog/{editingBlog.slug || slugify(editingBlog.title || 'new-article')}</code>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingBlog(null)}
+                  className="min-h-[42px] rounded-full border border-zinc-300 bg-white px-5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    if (!editingBlog.title.trim()) return;
-                    saveBlogPost(editingBlog);
+                    if (!editingBlog.title.trim()) {
+                      notify('Please enter an article headline before publishing.', 'error');
+                      return;
+                    }
+                    const parsedKw = blogKeywordsDraft
+                      .split(',')
+                      .map((k) => k.trim())
+                      .filter(Boolean);
+                    saveBlogPost({
+                      ...editingBlog,
+                      slug: editingBlog.slug.trim() || slugify(editingBlog.title),
+                      seoKeywords: parsedKw,
+                    });
                     setEditingBlog(null);
                   }}
-                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white"
+                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#E70000]/25 transition hover:bg-[#121214]"
                 >
-                  Publish Article
+                  Publish &amp; Save Article
                 </button>
               </div>
             </div>
@@ -1436,35 +1801,80 @@ export function AdminDashboard() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingProject(null);
+          }}
+          className="fixed inset-0 z-[9995] flex items-center justify-center bg-[#0f0f12]/80 p-3 backdrop-blur-md sm:p-5"
         >
-          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <h3 className="font-heading text-xl font-extrabold">
-                {editingProject.name || 'Add Featured Project'}
-              </h3>
+          <div className="vmg-modal-animate max-h-[92dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white text-[#121214] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
+            <div
+              className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 text-white sm:px-7 sm:py-5"
+              style={{
+                background:
+                  'radial-gradient(circle at 92% 20%, rgba(231, 0, 0, 0.24), transparent 55%), #141416',
+              }}
+            >
+              <div>
+                <span className="font-mono-code text-[10.5px] font-bold uppercase tracking-widest text-[#ff6b6b]">
+                  Portfolio Case Study
+                </span>
+                <h3 className="mt-0.5 font-heading text-lg font-extrabold text-white sm:text-xl">
+                  {editingProject.name || 'Add Featured Project'}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingProject(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100"
+                aria-label="Close project modal"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-zinc-200 transition hover:border-[#E70000] hover:bg-[#E70000] hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="space-y-4 p-5 sm:p-7">
+              {editingProject.photos?.[0] && (
+                <div className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-[#f8f9fb] p-3">
+                  <img
+                    src={editingProject.photos[0]}
+                    alt={editingProject.name}
+                    className="h-16 w-24 shrink-0 rounded-xl object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="block font-mono-code text-[10.5px] font-bold uppercase text-[#E70000]">
+                      Gallery Preview ({editingProject.photos.length} photos)
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Primary thumbnail URL..."
+                      value={editingProject.photos[0]}
+                      onChange={(e) => {
+                        const nextPhotos = [...editingProject.photos];
+                        nextPhotos[0] = e.target.value;
+                        setEditingProject({ ...editingProject, photos: nextPhotos });
+                      }}
+                      className="mt-1.5 min-h-[36px] w-full rounded-lg border border-zinc-300 bg-white px-2.5 text-xs text-[#121214]"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid gap-4 sm:grid-cols-3">
                 <label className="block sm:col-span-2">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Project Name *</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Project Name *
+                  </span>
                   <input
                     type="text"
                     value={editingProject.name}
                     onChange={(e) => setEditingProject({ ...editingProject, name: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm font-medium text-[#121214]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Market</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Market
+                  </span>
                   <select
                     value={editingProject.market}
                     onChange={(e) =>
@@ -1473,7 +1883,7 @@ export function AdminDashboard() {
                         market: e.target.value as ProjectItem['market'],
                       })
                     }
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3 text-sm text-[#121214]"
                   >
                     <option value="Warehouse">Warehouse</option>
                     <option value="Multifamily Residential">Multifamily Residential</option>
@@ -1485,45 +1895,53 @@ export function AdminDashboard() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Concrete Budget</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Concrete Budget
+                  </span>
                   <input
                     type="text"
                     value={editingProject.priceRange}
                     onChange={(e) =>
                       setEditingProject({ ...editingProject, priceRange: e.target.value })
                     }
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm text-[#121214]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">General Contractor</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    General Contractor
+                  </span>
                   <input
                     type="text"
                     value={editingProject.gc}
                     onChange={(e) => setEditingProject({ ...editingProject, gc: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm text-[#121214]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Square Footage</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Square Footage
+                  </span>
                   <input
                     type="text"
                     value={editingProject.sqft}
                     onChange={(e) => setEditingProject({ ...editingProject, sqft: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm text-[#121214]"
                   />
                 </label>
               </div>
 
               <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Scope Description</span>
+                <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Scope Description
+                </span>
                 <textarea
                   rows={3}
                   value={editingProject.description}
                   onChange={(e) =>
                     setEditingProject({ ...editingProject, description: e.target.value })
                   }
-                  className="w-full rounded-xl border border-zinc-300 p-3 text-sm"
+                  className="w-full rounded-xl border border-zinc-300 bg-white p-3.5 text-sm leading-relaxed text-[#121214]"
                 />
               </label>
 
@@ -1531,7 +1949,7 @@ export function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setEditingProject(null)}
-                  className="min-h-[42px] rounded-full border border-zinc-300 px-5 text-xs font-bold"
+                  className="min-h-[42px] rounded-full border border-zinc-300 bg-white px-5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 >
                   Cancel
                 </button>
@@ -1542,7 +1960,7 @@ export function AdminDashboard() {
                     saveProject(editingProject);
                     setEditingProject(null);
                   }}
-                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white"
+                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#E70000]/25 transition hover:bg-[#121214]"
                 >
                   Save Project
                 </button>
@@ -1559,65 +1977,88 @@ export function AdminDashboard() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[9995] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingJob(null);
+          }}
+          className="fixed inset-0 z-[9995] flex items-center justify-center bg-[#0f0f12]/80 p-3 backdrop-blur-md sm:p-5"
         >
-          <div className="vmg-modal-animate max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl bg-white p-5 text-[#121214] shadow-2xl sm:p-8">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <h3 className="font-heading text-xl font-extrabold">
-                {editingJob.title || 'Post Open Position'}
-              </h3>
+          <div className="vmg-modal-animate max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-3xl border border-zinc-200 bg-white text-[#121214] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
+            <div
+              className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 text-white sm:px-7 sm:py-5"
+              style={{
+                background:
+                  'radial-gradient(circle at 92% 20%, rgba(231, 0, 0, 0.24), transparent 55%), #141416',
+              }}
+            >
+              <div>
+                <span className="font-mono-code text-[10.5px] font-bold uppercase tracking-widest text-[#ff6b6b]">
+                  Careers &amp; Hiring ATS
+                </span>
+                <h3 className="mt-0.5 font-heading text-lg font-extrabold text-white sm:text-xl">
+                  {editingJob.title || 'Post Open Position'}
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setEditingJob(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100"
+                aria-label="Close job modal"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-zinc-200 transition hover:border-[#E70000] hover:bg-[#E70000] hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="mt-5 space-y-4">
+            <div className="space-y-4 p-5 sm:p-7">
               <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Job Title *</span>
+                <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Job Title *
+                </span>
                 <input
                   type="text"
                   value={editingJob.title}
                   onChange={(e) => setEditingJob({ ...editingJob, title: e.target.value })}
-                  className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                  className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm font-medium text-[#121214]"
                 />
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Location</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Location
+                  </span>
                   <input
                     type="text"
                     value={editingJob.location}
                     onChange={(e) => setEditingJob({ ...editingJob, location: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm text-[#121214]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Department</span>
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                    Department
+                  </span>
                   <input
                     type="text"
                     value={editingJob.department}
                     onChange={(e) => setEditingJob({ ...editingJob, department: e.target.value })}
-                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 px-3.5 text-sm"
+                    className="min-h-[44px] w-full rounded-xl border border-zinc-300 bg-white px-3.5 text-sm text-[#121214]"
                   />
                 </label>
               </div>
               <label className="block">
-                <span className="mb-1 block text-xs font-bold uppercase text-zinc-700">Role Description</span>
+                <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Role Description
+                </span>
                 <textarea
                   rows={3}
                   value={editingJob.description}
                   onChange={(e) => setEditingJob({ ...editingJob, description: e.target.value })}
-                  className="w-full rounded-xl border border-zinc-300 p-3 text-sm"
+                  className="w-full rounded-xl border border-zinc-300 bg-white p-3.5 text-sm leading-relaxed text-[#121214]"
                 />
               </label>
               <div className="flex justify-end gap-3 border-t border-zinc-200 pt-4">
                 <button
                   type="button"
                   onClick={() => setEditingJob(null)}
-                  className="min-h-[42px] rounded-full border border-zinc-300 px-5 text-xs font-bold"
+                  className="min-h-[42px] rounded-full border border-zinc-300 bg-white px-5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-50"
                 >
                   Cancel
                 </button>
@@ -1628,7 +2069,7 @@ export function AdminDashboard() {
                     saveJob(editingJob);
                     setEditingJob(null);
                   }}
-                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white"
+                  className="min-h-[42px] rounded-full bg-[#E70000] px-7 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#E70000]/25 transition hover:bg-[#121214]"
                 >
                   Save Position
                 </button>

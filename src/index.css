@@ -17,8 +17,45 @@ body {
   max-width: 100vw;
 }
 
+@layer base {
+  .vmg-admin-scope *,
+  .vmg-admin-scope *::before,
+  .vmg-admin-scope *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e4e4e7;
+  }
+  .vmg-admin-scope button,
+  .vmg-admin-scope [type="button"],
+  .vmg-admin-scope [type="submit"],
+  .vmg-admin-scope [type="reset"] {
+    -webkit-appearance: button;
+    appearance: none;
+    background-color: transparent;
+    background-image: none;
+    border-width: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+  }
+  .vmg-admin-scope input,
+  .vmg-admin-scope select,
+  .vmg-admin-scope textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    box-sizing: border-box;
+  }
+}
+
 .vmg-admin-scope {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
 }
 
 .vmg-admin-scope a {
@@ -40,13 +77,51 @@ body {
   margin: 0;
 }
 
+.vmg-admin-scope button:not(.border):not(.border-zinc-200):not(.border-zinc-300):not(.border-white\/10):not(.border-white\/15) {
+  border-width: 0 !important;
+}
+
+.vmg-admin-scope input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.vmg-admin-scope select,
+.vmg-admin-scope textarea {
+  border-style: solid;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vmg-admin-scope input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.vmg-admin-scope select:focus,
+.vmg-admin-scope textarea:focus {
+  border-color: #e70000 !important;
+  box-shadow: 0 0 0 3px rgba(231, 0, 0, 0.14);
+}
+
 .font-heading {
-  font-family: 'Sora', 'Space Grotesk', sans-serif;
+  font-family: 'Sora', 'Space Grotesk', sans-serif !important;
 }
 
 .font-mono-code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', monospace !important;
 }
+
+/* Override unlayered Bootstrap/WP Reboot (button { border-radius: 0; font-size: inherit }, h3 { font-weight: 500 }) inside Admin & Modals */
+.vmg-admin-scope .font-semibold { font-weight: 600 !important; }
+.vmg-admin-scope .font-bold { font-weight: 700 !important; }
+.vmg-admin-scope .font-extrabold { font-weight: 800 !important; }
+.vmg-admin-scope .text-\[10px\] { font-size: 10px !important; line-height: 1.4 !important; }
+.vmg-admin-scope .text-\[10\.5px\] { font-size: 10.5px !important; line-height: 1.4 !important; }
+.vmg-admin-scope .text-\[11px\] { font-size: 11px !important; line-height: 1.4 !important; }
+.vmg-admin-scope .text-\[11\.5px\] { font-size: 11.5px !important; line-height: 1.4 !important; }
+.vmg-admin-scope .text-xs { font-size: 0.75rem !important; line-height: 1.1rem !important; }
+.vmg-admin-scope .text-sm { font-size: 0.875rem !important; line-height: 1.3rem !important; }
+.vmg-admin-scope .text-lg { font-size: 1.125rem !important; line-height: 1.6rem !important; }
+.vmg-admin-scope .text-xl { font-size: 1.25rem !important; line-height: 1.65rem !important; }
+.vmg-admin-scope .text-2xl { font-size: 1.5rem !important; line-height: 1.9rem !important; }
+.vmg-admin-scope .rounded-lg { border-radius: 0.5rem !important; }
+.vmg-admin-scope .rounded-xl { border-radius: 0.75rem !important; }
+.vmg-admin-scope .rounded-2xl { border-radius: 1rem !important; }
+.vmg-admin-scope .rounded-3xl { border-radius: 1.5rem !important; }
+.vmg-admin-scope .rounded-full { border-radius: 9999px !important; }
 
 /* ============================================================================
    2. TOP SCROLL PROGRESS BAR & FLOATING ADMIN PILL
@@ -770,8 +845,8 @@ a.header-calendar:hover {
 
 /* Tablets & Small Laptops (<= 991px) */
 @media (max-width: 991px) {
-  #wrapper h1,
-  #wrapper h2 {
+  #wrapper h1:not(.vmg-admin-scope *),
+  #wrapper h2:not(.vmg-admin-scope *) {
     font-size: clamp(24px, 4.5vw, 34px) !important;
     line-height: 1.18 !important;
   }
@@ -1803,6 +1878,37 @@ a.header-calendar:hover {
   margin: 0 auto;
   font-family: "DM Sans", sans-serif;
   color: #24262b;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose {
+  max-width: 100%;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose p {
+  font-size: 15.5px !important;
+  line-height: 1.72 !important;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose h2 {
+  font-size: 21px !important;
+  margin: 26px 0 12px !important;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose h3 {
+  font-size: 17.5px !important;
+  margin: 20px 0 10px !important;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose blockquote {
+  padding: 18px 20px !important;
+  font-size: 15.5px !important;
+  margin: 20px 0 !important;
+}
+
+.vmg-blog-editor-preview .vmg-blog-prose ul,
+.vmg-blog-editor-preview .vmg-blog-prose ol {
+  padding: 16px 18px 16px 22px !important;
+  margin: 14px 0 18px !important;
 }
 
 #wrapper .vmg-blog-prose p {
