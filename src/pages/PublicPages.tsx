@@ -2495,15 +2495,44 @@ export function RestorationPage() {
 /* ============================================================================
    8. BLOG PAGE & SINGLE BLOG POST PAGE (Powered by AI Auto-Publisher in /admin)
    ============================================================================ */
+function getAuthorInitials(name: string) {
+  const clean = name.replace(/·.*$/, '').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'VM';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function BlogPage() {
   const { blogs } = useVmg();
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const categories = ['ALL', ...Array.from(new Set(blogs.map((b) => b.category)))];
-  const filteredBlogs =
-    selectedCategory === 'ALL'
-      ? blogs
-      : blogs.filter((b) => b.category === selectedCategory);
+  const categoryCounts: Record<string, number> = {
+    ALL: blogs.length,
+  };
+  blogs.forEach((b) => {
+    categoryCounts[b.category] = (categoryCounts[b.category] || 0) + 1;
+  });
+
+  const q = searchQuery.trim().toLowerCase();
+  const filteredBlogs = blogs.filter((b) => {
+    const matchesCat = selectedCategory === 'ALL' || b.category === selectedCategory;
+    if (!matchesCat) return false;
+    if (!q) return true;
+    return (
+      b.title.toLowerCase().includes(q) ||
+      b.excerpt.toLowerCase().includes(q) ||
+      b.category.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q) ||
+      (b.seoKeywords || []).some((k) => k.toLowerCase().includes(q))
+    );
+  });
+
+  const showFeatured = filteredBlogs.length > 1 && selectedCategory === 'ALL' && !q;
+  const featuredPost = showFeatured ? filteredBlogs[0] : null;
+  const gridPosts = showFeatured ? filteredBlogs.slice(1) : filteredBlogs;
 
   return (
     <div>
@@ -2532,17 +2561,17 @@ export function BlogPage() {
                 <p className="highlights">INSIGHTS &amp; AI PUBLISHING ENGINE</p>
               </div>
               <h1 className="careers-hero-title">
-                VMG NeXT <span className="careers-red">CONSTRUCTION BLOG</span>
+                VMG NeXT <span className="careers-red">FIELD JOURNAL</span>
               </h1>
               <p className="careers-hero-subtitle">
-                Expert perspectives on commercial construction, tilt-up wall engineering,
-                cast-in-place foundations, and structural concrete restoration across Utah.
+                Engineering briefs, field perspectives, and technical insights on commercial
+                concrete, tilt-up wall construction, structural restoration, and building across Utah.
               </p>
               <div className="careers-hero-cta">
                 <Link to="/admin" className="global-btn-white">
                   <span className="btn-text-wrapper">
                     <span className="btn-text">
-                      Generate &amp; Auto-Publish Blog with AI
+                      Generate &amp; Auto-Publish with AI
                     </span>
                   </span>
                 </Link>
@@ -2552,116 +2581,249 @@ export function BlogPage() {
         </div>
       </section>
 
-      {/* BLOG GRID */}
-      <section className="projects-grid-section" style={{ backgroundColor: '#f7f7f8' }}>
+      {/* EDITORIAL BLOG SHOWCASE */}
+      <section className="vmg-blog-section">
         <div className="container">
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '16px',
-              marginBottom: '40px',
-            }}
-          >
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {/* Filter + Search + AI Studio Bar */}
+          <div className="vmg-blog-toolbar">
+            <div className="vmg-blog-filters">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`project-filter-btn ${selectedCategory === cat ? 'active' : ''}`}
+                  className={`vmg-blog-filter-pill ${selectedCategory === cat ? 'active' : ''}`}
                 >
-                  {cat}
+                  <span>{cat}</span>
+                  <span className="vmg-blog-filter-count">{categoryCounts[cat] ?? 0}</span>
                 </button>
               ))}
             </div>
-            <Link
-              to="/admin"
-              style={{
-                color: '#E70000',
-                fontWeight: 700,
-                textDecoration: 'none',
-                fontSize: '14px',
-              }}
-            >
-              + Write New Article with AI Prompt →
-            </Link>
+
+            <div className="vmg-blog-toolbar-right">
+              <div className="vmg-blog-search-box">
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search articles or topics..."
+                  className="vmg-blog-search-input"
+                  aria-label="Search blog articles"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="vmg-blog-search-clear"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                )}
+              </div>
+
+              <Link to="/admin" className="vmg-blog-studio-cta">
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI Blog Studio</span>
+              </Link>
+            </div>
           </div>
 
-          <div className="row g-4">
-            {filteredBlogs.map((post) => (
-              <div className="col-lg-4 col-md-6 col-12" key={post.id}>
-                <div
-                  className="project-card"
-                  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                >
-                  <div className="project-card-image-box" style={{ height: '240px' }}>
-                    {post.aiGenerated && (
-                      <span className="project-number-badge" style={{ fontSize: '11px' }}>
-                        AI PUBLISHED
-                      </span>
-                    )}
-                    <span className="project-market-chip">{post.category}</span>
-                    <Link to={`/blog/${post.slug}`}>
-                      <img
-                        src={post.coverImage}
-                        alt={post.title}
-                        className="project-img"
-                        style={{ height: '240px', width: '100%', objectFit: 'cover' }}
-                      />
-                    </Link>
-                  </div>
-                  <div
-                    className="project-card-body"
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                    }}
+          {/* Empty State */}
+          {filteredBlogs.length === 0 ? (
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '22px',
+                border: '1px solid rgba(24,24,24,0.09)',
+                padding: '56px 24px',
+                textAlign: 'center',
+                boxShadow: '0 12px 32px rgba(15,15,18,0.05)',
+              }}
+            >
+              <i
+                className="fa-regular fa-newspaper"
+                style={{ fontSize: '36px', color: '#E70000', marginBottom: '14px' }}
+              ></i>
+              <h2 className="vmg-related-heading" style={{ marginBottom: '10px' }}>
+                No matching articles found
+              </h2>
+              <p
+                style={{
+                  color: '#555',
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: '15px',
+                  marginBottom: '22px',
+                }}
+              >
+                Try clearing your filter or generate a brand-new article on this topic using AI.
+              </p>
+              <button
+                type="button"
+                className="vmg-blog-filter-pill active"
+                onClick={() => {
+                  setSelectedCategory('ALL');
+                  setSearchQuery('');
+                }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Featured Lead Article */}
+              {featuredPost && (
+                <article className="vmg-featured-post">
+                  <Link
+                    to={`/blog/${featuredPost.slug}`}
+                    className="vmg-featured-media"
+                    aria-label={featuredPost.title}
                   >
+                    <div className="vmg-featured-badges">
+                      <span className="vmg-badge-crimson">
+                        <i className="fa-solid fa-bolt"></i> Featured Insight
+                      </span>
+                      <span className="vmg-badge-glass">{featuredPost.category}</span>
+                      {featuredPost.aiGenerated && (
+                        <span className="vmg-badge-glass">
+                          <i className="fa-solid fa-wand-magic-sparkles"></i> AI Published
+                        </span>
+                      )}
+                    </div>
+                    <img src={featuredPost.coverImage} alt={featuredPost.title} />
+                  </Link>
+
+                  <div className="vmg-featured-body">
                     <div>
-                      <div className="project-meta-chips" style={{ marginBottom: '12px' }}>
+                      <div className="vmg-blog-meta-row">
                         <span>
-                          <i className="fa-regular fa-calendar"></i> {post.publishedAt}
+                          <i className="fa-regular fa-calendar" style={{ color: '#E70000' }}></i>
+                          {featuredPost.publishedAt}
                         </span>
                         <span>
-                          <i className="fa-regular fa-clock"></i> {post.readTime}
+                          <i className="fa-regular fa-clock" style={{ color: '#E70000' }}></i>
+                          {featuredPost.readTime}
                         </span>
                       </div>
+
                       <Link
-                        to={`/blog/${post.slug}`}
+                        to={`/blog/${featuredPost.slug}`}
                         style={{ textDecoration: 'none', color: 'inherit' }}
                       >
-                        <h3 className="project-name" style={{ fontSize: '20px', lineHeight: 1.35 }}>
-                          {post.title}
-                        </h3>
+                        <h2 className="vmg-featured-title">{featuredPost.title}</h2>
                       </Link>
-                      <p className="project-description" style={{ marginTop: '12px' }}>
-                        {post.excerpt}
-                      </p>
+
+                      <p className="vmg-featured-excerpt">{featuredPost.excerpt}</p>
+
+                      {featuredPost.seoKeywords && featuredPost.seoKeywords.length > 0 && (
+                        <div className="vmg-blog-kw-list">
+                          {featuredPost.seoKeywords.slice(0, 3).map((kw) => (
+                            <span key={kw} className="vmg-blog-kw-dark">
+                              #{kw}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ marginTop: '20px' }}>
-                      <Link
-                        to={`/blog/${post.slug}`}
-                        style={{
-                          color: '#E70000',
-                          fontWeight: 700,
-                          textDecoration: 'none',
-                          fontSize: '13px',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Read Full Article →
+
+                    <div className="vmg-featured-footer">
+                      <div className="vmg-author-pill">
+                        <span className="vmg-author-avatar">
+                          {getAuthorInitials(featuredPost.author)}
+                        </span>
+                        <span className="vmg-author-name">{featuredPost.author}</span>
+                      </div>
+                      <Link to={`/blog/${featuredPost.slug}`} className="vmg-read-arrow-btn">
+                        <span>Read Article</span>
+                        <i className="fa-solid fa-arrow-right"></i>
                       </Link>
                     </div>
                   </div>
-                </div>
+                </article>
+              )}
+
+              {/* Article Cards Grid */}
+              <div className="row g-4">
+                {gridPosts.map((post) => (
+                  <div
+                    className={
+                      gridPosts.length === 2
+                        ? 'col-lg-6 col-md-6 col-12'
+                        : 'col-xl-4 col-lg-6 col-md-6 col-12'
+                    }
+                    key={post.id}
+                  >
+                    <article className="vmg-blog-card">
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        className="vmg-blog-card-media"
+                        aria-label={post.title}
+                      >
+                        <div className="vmg-blog-card-badges">
+                          <span className="vmg-blog-cat-chip">{post.category}</span>
+                          {post.aiGenerated && (
+                            <span className="vmg-blog-ai-chip">
+                              <i className="fa-solid fa-wand-magic-sparkles"></i> AI
+                            </span>
+                          )}
+                        </div>
+                        <img src={post.coverImage} alt={post.title} />
+                      </Link>
+
+                      <div className="vmg-blog-card-body">
+                        <div>
+                          <div className="vmg-blog-card-meta">
+                            <span>
+                              <i className="fa-regular fa-calendar"></i> {post.publishedAt}
+                            </span>
+                            <span>
+                              <i className="fa-regular fa-clock"></i> {post.readTime}
+                            </span>
+                          </div>
+
+                          <Link
+                            to={`/blog/${post.slug}`}
+                            style={{ textDecoration: 'none', color: 'inherit' }}
+                          >
+                            <h3 className="vmg-blog-card-title">{post.title}</h3>
+                          </Link>
+
+                          <p className="vmg-blog-card-excerpt">{post.excerpt}</p>
+
+                          {post.seoKeywords && post.seoKeywords.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              {post.seoKeywords.slice(0, 2).map((kw) => (
+                                <span key={kw} className="vmg-blog-kw-light">
+                                  #{kw}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="vmg-blog-card-footer">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                            <span
+                              className="vmg-author-avatar"
+                              style={{ width: '28px', height: '28px', fontSize: '10.5px' }}
+                            >
+                              {getAuthorInitials(post.author)}
+                            </span>
+                            <span className="vmg-blog-card-author">{post.author}</span>
+                          </div>
+                          <Link to={`/blog/${post.slug}`} className="vmg-blog-read-link">
+                            <span>Read</span>
+                            <i className="fa-solid fa-arrow-right"></i>
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -2674,90 +2836,169 @@ export function BlogPostDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { blogs, openEstimateModal } = useVmg();
   const post = blogs.find((b) => b.slug === slug) ?? blogs[0];
+  const [readProgress, setReadProgress] = useState(0);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) {
+        setReadProgress(0);
+        return;
+      }
+      const pct = Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100));
+      setReadProgress(pct);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [slug]);
+
+  const handleCopyLink = () => {
+    try {
+      navigator.clipboard?.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2200);
+    } catch {
+      /* Clipboard unavailable */
+    }
+  };
+
+  const relatedPosts = blogs.filter((b) => b.id !== post.id).slice(0, 3);
 
   return (
     <div>
-      <div style={{ backgroundColor: '#181818', color: '#ffffff', padding: '80px 0 60px' }}>
-        <div className="container">
-          <Link
-            to="/blog"
-            style={{
-              color: '#E70000',
-              fontWeight: 700,
-              textDecoration: 'none',
-              fontSize: '13px',
-              textTransform: 'uppercase',
-            }}
-          >
-            ← Back to All Articles
-          </Link>
-          <div className="mission-wrapper" style={{ marginTop: '20px' }}>
-            <p className="highlights">{post.category}</p>
-          </div>
-          <h1
-            style={{
-              fontFamily: '"BBH Sans Bartle", sans-serif',
-              fontSize: 'clamp(28px, 4vw, 48px)',
-              lineHeight: 1.15,
-              marginTop: '12px',
-              maxWidth: '920px',
-              color: '#ffffff',
-            }}
-          >
-            {post.title}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: '16px', fontSize: '14px' }}>
-            By <strong>{post.author}</strong> · {post.publishedAt} · {post.readTime}
-          </p>
-        </div>
+      {/* Sticky Reading Progress Bar */}
+      <div className="vmg-reading-progress-track" aria-hidden="true">
+        <div
+          className="vmg-reading-progress-bar"
+          style={{ width: `${readProgress.toFixed(1)}%` }}
+        />
       </div>
 
-      <div style={{ backgroundColor: '#ffffff', padding: '60px 0 90px' }}>
-        <div className="container" style={{ maxWidth: '900px' }}>
-          <img
-            src={post.coverImage}
-            alt={post.title}
-            style={{
-              width: '100%',
-              maxHeight: '460px',
-              objectFit: 'cover',
-              borderRadius: '18px',
-              marginBottom: '40px',
-            }}
-          />
-          <div
-            style={{ fontSize: '18px', lineHeight: 1.8, color: '#222' }}
+      {/* Editorial Article Header */}
+      <header className="vmg-article-hero">
+        <div className="container">
+          <div className="vmg-article-hero-inner">
+            <div className="vmg-article-topbar">
+              <Link to="/blog" className="vmg-article-back-link">
+                <i className="fa-solid fa-arrow-left"></i>
+                <span>All Articles</span>
+              </Link>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <span className="vmg-badge-crimson">{post.category}</span>
+                {post.aiGenerated && (
+                  <span className="vmg-badge-glass">
+                    <i className="fa-solid fa-wand-magic-sparkles"></i> AI Studio Brief
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <h1 className="vmg-article-title">{post.title}</h1>
+            <p className="vmg-article-lead">{post.excerpt}</p>
+
+            <div className="vmg-article-meta-bar">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span className="vmg-author-avatar">{getAuthorInitials(post.author)}</span>
+                <div>
+                  <div className="vmg-author-name">{post.author}</div>
+                  <div className="vmg-article-meta-chips" style={{ marginTop: '3px' }}>
+                    <span>
+                      <i className="fa-regular fa-calendar" style={{ color: '#E70000' }}></i>
+                      {post.publishedAt}
+                    </span>
+                    <span>
+                      <i className="fa-regular fa-clock" style={{ color: '#E70000' }}></i>
+                      {post.readTime}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                className="vmg-article-share-btn"
+              >
+                <i className={copiedLink ? 'fa-solid fa-check' : 'fa-solid fa-share-nodes'}></i>
+                <span>{copiedLink ? 'Link Copied!' : 'Share Article'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Article Canvas */}
+      <section className="vmg-article-body-section">
+        <div className="container">
+          <div className="vmg-article-cover-wrap">
+            <img src={post.coverImage} alt={post.title} />
+          </div>
+
+          <article
+            className="vmg-blog-prose"
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
           />
 
-          <div
-            style={{
-              marginTop: '50px',
-              padding: '36px',
-              borderRadius: '20px',
-              backgroundColor: '#181818',
-              color: '#ffffff',
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '20px',
-            }}
-          >
-            <div>
-              <h3
-                style={{
-                  fontFamily: '"BBH Sans Bartle", sans-serif',
-                  fontSize: '22px',
-                  margin: 0,
-                  color: '#ffffff',
-                }}
-              >
+          {/* SEO Keywords & Provenance Strip */}
+          {((post.seoKeywords && post.seoKeywords.length > 0) || post.promptUsed) && (
+            <div className="vmg-article-tags-box">
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                <span
+                  style={{
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: '#181818',
+                    textTransform: 'uppercase',
+                    marginRight: '4px',
+                  }}
+                >
+                  Topics:
+                </span>
+                {(post.seoKeywords || []).map((kw) => (
+                  <span key={kw} className="vmg-blog-kw-light">
+                    #{kw}
+                  </span>
+                ))}
+              </div>
+              {post.aiGenerated && (
+                <span
+                  style={{
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontSize: '11px',
+                    color: '#666',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles" style={{ color: '#E70000' }}></i>
+                  Published via VMG AI Studio
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Estimating Consultation Banner */}
+          <div className="vmg-article-cta-box">
+            <div style={{ flex: '1 1 360px' }}>
+              <h3 className="vmg-article-cta-title">
                 Planning a Commercial Concrete Project in Utah?
               </h3>
-              <p style={{ color: 'rgba(255,255,255,0.75)', margin: '8px 0 0', fontSize: '15px' }}>
-                Connect directly with our Estimating Desk for quantity takeoffs and structural
-                consultations.
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.78)',
+                  margin: 0,
+                  fontFamily: '"DM Sans", sans-serif',
+                  fontSize: '15px',
+                  lineHeight: 1.6,
+                }}
+              >
+                Connect directly with our Estimating Desk for quantity takeoffs, tilt-up feasibility,
+                and structural consultations.
               </p>
             </div>
             <button
@@ -2771,7 +3012,99 @@ export function BlogPostDetailPage() {
             </button>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Related Articles Strip */}
+      {relatedPosts.length > 0 && (
+        <section className="vmg-related-section">
+          <div className="container">
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px',
+                marginBottom: '28px',
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#E70000',
+                    margin: '0 0 6px',
+                  }}
+                >
+                  Continue Reading
+                </p>
+                <h2 className="vmg-related-heading">More Field Insights from VMG NeXT</h2>
+              </div>
+              <Link to="/blog" className="vmg-blog-read-link" style={{ fontSize: '13.5px' }}>
+                <span>View All Articles</span>
+                <i className="fa-solid fa-arrow-right"></i>
+              </Link>
+            </div>
+
+            <div className="row g-4">
+              {relatedPosts.map((rel) => (
+                <div
+                  className={relatedPosts.length === 2 ? 'col-md-6 col-12' : 'col-lg-4 col-md-6 col-12'}
+                  key={rel.id}
+                >
+                  <article className="vmg-blog-card">
+                    <Link
+                      to={`/blog/${rel.slug}`}
+                      className="vmg-blog-card-media"
+                      aria-label={rel.title}
+                    >
+                      <div className="vmg-blog-card-badges">
+                        <span className="vmg-blog-cat-chip">{rel.category}</span>
+                        {rel.aiGenerated && (
+                          <span className="vmg-blog-ai-chip">
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> AI
+                          </span>
+                        )}
+                      </div>
+                      <img src={rel.coverImage} alt={rel.title} />
+                    </Link>
+                    <div className="vmg-blog-card-body">
+                      <div>
+                        <div className="vmg-blog-card-meta">
+                          <span>
+                            <i className="fa-regular fa-calendar"></i> {rel.publishedAt}
+                          </span>
+                          <span>
+                            <i className="fa-regular fa-clock"></i> {rel.readTime}
+                          </span>
+                        </div>
+                        <Link
+                          to={`/blog/${rel.slug}`}
+                          style={{ textDecoration: 'none', color: 'inherit' }}
+                        >
+                          <h3 className="vmg-blog-card-title">{rel.title}</h3>
+                        </Link>
+                        <p className="vmg-blog-card-excerpt">{rel.excerpt}</p>
+                      </div>
+                      <div className="vmg-blog-card-footer">
+                        <span className="vmg-blog-card-author">{rel.author}</span>
+                        <Link to={`/blog/${rel.slug}`} className="vmg-blog-read-link">
+                          <span>Read</span>
+                          <i className="fa-solid fa-arrow-right"></i>
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <PreFooterCta />
     </div>

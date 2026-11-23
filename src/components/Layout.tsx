@@ -612,6 +612,11 @@ function usePageAnimations(pathname: string) {
       '.info-card',
       '.contact-form-photo',
       '.section-team-member .col-xxl-6',
+      '.vmg-blog-toolbar',
+      '.vmg-featured-post',
+      '.vmg-blog-card',
+      '.vmg-article-tags-box',
+      '.vmg-article-cta-box',
     ];
 
     const elements = Array.from(wrapper.querySelectorAll<HTMLElement>(revealSelectors.join(',')));
@@ -638,7 +643,9 @@ function usePageAnimations(pathname: string) {
         el.classList.contains('vmg-point-card') ||
         el.classList.contains('careers-benefit-card') ||
         el.classList.contains('process-card') ||
-        el.classList.contains('info-card')
+        el.classList.contains('info-card') ||
+        el.classList.contains('vmg-blog-card') ||
+        el.classList.contains('vmg-featured-post')
       ) {
         el.classList.add('vmg-anim-scale');
       }
@@ -654,6 +661,7 @@ function usePageAnimations(pathname: string) {
       '.resto-main-img',
       '.contact-form-photo',
       '.section-team-member .team-member-img img',
+      '.vmg-article-cover-wrap img',
     ];
     const images = Array.from(wrapper.querySelectorAll<HTMLElement>(imageSelectors.join(',')));
     images.forEach((img) => img.classList.add('vmg-img-reveal'));
@@ -674,7 +682,7 @@ function usePageAnimations(pathname: string) {
     // 1c. Interactive Spotlight Mouse Tracker on Dark Sections
     const darkSections = Array.from(
       wrapper.querySelectorAll<HTMLElement>(
-        '.section-metrics, .section-services, .section-home-testimonials, .projects-markets-section, .careers-testimonials-section, .careers-hero-section'
+        '.section-metrics, .section-services, .section-home-testimonials, .projects-markets-section, .careers-testimonials-section, .careers-hero-section, .vmg-article-hero, .vmg-featured-body, .vmg-article-cta-box'
       )
     );
     const cleanupSpotlight: Array<() => void> = [];
@@ -695,7 +703,7 @@ function usePageAnimations(pathname: string) {
     if (canHoverTilt) {
       const tiltCards = Array.from(
         wrapper.querySelectorAll<HTMLElement>(
-          '.project-card, .market-card, .capability-card, .careers-benefit-card, .process-card, .info-card'
+          '.project-card, .market-card, .capability-card, .careers-benefit-card, .process-card, .info-card, .vmg-blog-card'
         )
       );
       tiltCards.forEach((card) => {
