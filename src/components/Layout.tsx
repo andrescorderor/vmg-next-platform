@@ -623,6 +623,8 @@ function usePageAnimations(pathname: string) {
       '.vmg-blog-card',
       '.vmg-article-tags-box',
       '.vmg-article-cta-box',
+      '.vmg-srv-jump-bar',
+      '.vmg-srv-card',
     ];
 
     const elements = Array.from(wrapper.querySelectorAll<HTMLElement>(revealSelectors.join(',')));
@@ -662,6 +664,7 @@ function usePageAnimations(pathname: string) {
     // 1b. Image Architectural Curtain Reveal (.vmg-img-reveal)
     const imageSelectors = [
       '.service-card .service-img',
+      '.vmg-srv-media img',
       '.who-we-are-img',
       '.section-why-us .img-wrapper img',
       '.resto-main-img',
@@ -688,7 +691,7 @@ function usePageAnimations(pathname: string) {
     // 1c. Interactive Spotlight Mouse Tracker on Dark Sections
     const darkSections = Array.from(
       wrapper.querySelectorAll<HTMLElement>(
-        '.section-metrics, .section-services, .section-home-testimonials, .projects-markets-section, .careers-testimonials-section, .careers-hero-section, .vmg-article-hero, .vmg-featured-body, .vmg-article-cta-box'
+        '.section-metrics, .section-services, .section-home-testimonials, .projects-markets-section, .careers-testimonials-section, .careers-hero-section, .vmg-article-hero, .vmg-featured-body, .vmg-article-cta-box, .vmg-srv-card--dark'
       )
     );
     const cleanupSpotlight: Array<() => void> = [];
@@ -830,11 +833,23 @@ function usePageAnimations(pathname: string) {
 /* ============================================================================
    5. MAIN LAYOUT (#wrapper -> header.navbar-black-bg + Outlet + footer#footer)
    ============================================================================ */
+const NAV_LINKS = [
+  { to: '/services', label: 'Services' },
+  { to: '/projects', label: 'Projects' },
+  { to: '/about-us', label: 'About' },
+  { to: '/team', label: 'Team' },
+  { to: '/careers', label: 'Careers' },
+  { to: '/blog', label: 'Blog' },
+  { to: '/restoration', label: 'Restoration' },
+  { to: '/contact-us', label: 'Contact' },
+];
+
 export function Layout() {
   const { settings, openEstimateModal, toasts, team, blogs } = useVmg();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showTopBtn, setShowTopBtn] = useState(false);
+  const [navScrolled, setNavScrolled] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
 
   usePageAnimations(location.pathname);
@@ -848,6 +863,7 @@ export function Layout() {
   useEffect(() => {
     const onScroll = () => {
       setShowTopBtn(window.scrollY > 300);
+      setNavScrolled(window.scrollY > 24);
       const docHeight =
         document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (docHeight > 0) {
@@ -855,6 +871,7 @@ export function Layout() {
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -885,217 +902,154 @@ export function Layout() {
       )}
 
       <div id="wrapper">
-        {/* EXACT VMG NeXT HEADER (1:1 Original Structure) */}
-        <header className="navbar-black-bg">
-          <nav className="container navigation-wrapper navbar-black-bg">
-            <div className="row">
-              <div className="col-xxl-4 col-lg-12 col-6">
-                <div className="header-logo-wrapper">
-                  <Link to="/" className="header-logo-link">
-                    <img src={settings.logoHeader} alt="header VMG Next logo" />
-                  </Link>
-                </div>
-              </div>
-              <div className="col-xxl-8 col-lg-12 col-6 mobile-menu-column-flex d-flex d-xxl-block justify-content-end align-items-center">
-                {/* DESKTOP MENU */}
-                <div className="main-nav-right-part desktop-menu">
-                  <div className="main-nav-wrapper">
-                    <ul className="main-nav">
-                      <li className="menu-item">
-                        <Link
-                          to="/services"
-                          className={`menu-item-link ${isNavActive('/services') ? 'active-nav-link' : ''}`}
-                        >
-                          Services
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/projects"
-                          className={`menu-item-link ${isNavActive('/projects') ? 'active-nav-link' : ''}`}
-                        >
-                          Projects
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/about-us"
-                          className={`menu-item-link ${isNavActive('/about-us') ? 'active-nav-link' : ''}`}
-                        >
-                          About
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/team"
-                          className={`menu-item-link ${isNavActive('/team') ? 'active-nav-link' : ''}`}
-                        >
-                          Team
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/careers"
-                          className={`menu-item-link ${isNavActive('/careers') ? 'active-nav-link' : ''}`}
-                        >
-                          Careers
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/blog"
-                          className={`menu-item-link ${isNavActive('/blog') ? 'active-nav-link' : ''}`}
-                        >
-                          Blog
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/restoration"
-                          className={`menu-item-link ${isNavActive('/restoration') ? 'active-nav-link' : ''}`}
-                        >
-                          Restoration
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link
-                          to="/contact-us"
-                          className={`menu-item-link ${isNavActive('/contact-us') ? 'active-nav-link' : ''}`}
-                        >
-                          Contact
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="header-book-wrapper">
-                    <a
-                      href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
-                      className="header-telephone"
-                    >
-                      <i className="fa-solid fa-phone"></i> {settings.phone}
-                    </a>
-                    <a
-                      href="#schedule-call"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openEstimateModal();
-                      }}
-                      className="header-calendar"
-                    >
-                      Schedule a call
-                    </a>
-                  </div>
-                </div>
+        {/* AWWWARDS-INSPIRED STICKY FROSTED OBSIDIAN NAVBAR */}
+        <header className={`vmg-navbar ${navScrolled ? 'vmg-navbar--scrolled' : ''}`}>
+          <nav className="container vmg-navbar-inner" aria-label="Primary Navigation">
+            <Link to="/" className="vmg-navbar-logo">
+              <img src={settings.logoHeader} alt="header VMG Next logo" />
+            </Link>
 
-                {/* MOBILE MENU BURGER */}
+            {/* Centered Smoked-Glass Pill Navigation */}
+            <div className="vmg-nav-pill-track">
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`vmg-nav-link ${isNavActive(item.to) ? 'is-active' : ''}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Dual-Action Procurement Zone (Estimating Desk + CTA) */}
+            <div className="vmg-nav-actions">
+              <a
+                href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
+                className="vmg-nav-phone-chip"
+              >
+                <span className="vmg-nav-live-dot" aria-hidden="true"></span>
+                <span>{settings.phone}</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => openEstimateModal()}
+                className="vmg-nav-cta-btn"
+              >
+                <span>Schedule a call</span>
+                <i className="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            {/* Compact Mobile Controls (< 1200px) */}
+            <div className="vmg-nav-mobile-right">
+              <a
+                href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
+                className="vmg-nav-mobile-call"
+              >
+                <i className="fa-solid fa-phone"></i>
+                <span>Call</span>
+              </a>
+              <button
+                type="button"
+                className={`vmg-burger-btn ${mobileOpen ? 'open' : ''}`}
+                id="burger"
+                onClick={toggleMobileMenu}
+                aria-label="Toggle navigation menu"
+                aria-expanded={mobileOpen}
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+            </div>
+          </nav>
+
+          {/* Architectural Full-Height Mobile Drawer */}
+          <div
+            className={`vmg-mobile-drawer ${mobileOpen ? 'open' : ''}`}
+            id="mobileMenu"
+            style={{
+              transform: mobileOpen ? 'translateX(0%)' : 'translateX(100%)',
+              opacity: mobileOpen ? 1 : 0,
+              visibility: mobileOpen ? 'visible' : 'hidden',
+            }}
+          >
+            <div>
+              <div className="vmg-mobile-drawer-top">
+                <Link to="/" className="vmg-navbar-logo" onClick={() => setMobileOpen(false)}>
+                  <img src={settings.logoHeader} alt="VMG NeXT logo" />
+                </Link>
                 <button
                   type="button"
-                  className={`burger ${mobileOpen ? 'open' : ''}`}
-                  id="burger"
-                  onClick={toggleMobileMenu}
-                  aria-label="Toggle navigation menu"
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close navigation menu"
+                  className="vmg-burger-btn open"
                 >
                   <span></span>
                   <span></span>
                   <span></span>
                 </button>
+              </div>
 
-                {/* MOBILE MENU DRAWER */}
-                <div
-                  className={`mobile-menu ${mobileOpen ? 'open' : ''}`}
-                  id="mobileMenu"
-                  style={{
-                    transform: mobileOpen ? 'translateX(0%)' : 'translateX(100%)',
-                    opacity: mobileOpen ? 1 : 0,
-                    visibility: mobileOpen ? 'visible' : 'hidden',
-                    transition: 'transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease',
-                  }}
-                >
-                  <div className="header-logo-wrapper">
-                    <Link to="/" className="header-logo-link" onClick={() => setMobileOpen(false)}>
-                      <img
-                        src="https://vmgnext.com/wp-content/uploads/2025/06/Group-1.png"
-                        alt="header VMG Next logo"
-                      />
-                    </Link>
-                  </div>
-                  <div className="main-nav-wrapper">
-                    <ul className="main-nav">
-                      <li className="menu-item">
-                        <Link to="/services" className="menu-item-link">
-                          Services
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/projects" className="menu-item-link">
-                          Projects
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/about-us" className="menu-item-link">
-                          About
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/team" className="menu-item-link">
-                          Team
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/careers" className="menu-item-link">
-                          Careers
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/blog" className="menu-item-link">
-                          Blog
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/restoration" className="menu-item-link">
-                          Restoration
-                        </Link>
-                      </li>
-                      <li className="menu-item">
-                        <Link to="/contact-us" className="menu-item-link">
-                          Contact
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="header-book-wrapper">
-                    <a
-                      href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
-                      className="header-telephone"
-                    >
-                      <img
-                        src="https://vmgnext.com/wp-content/uploads/2025/06/Vector-1.png"
-                        alt="mobile telephone icon"
-                        className="mobile-tel-icon"
-                      />{' '}
-                      {settings.phone}
-                    </a>
-                    <a
-                      href="#schedule-call"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setMobileOpen(false);
-                        openEstimateModal();
-                      }}
-                      className="header-calendar"
-                    >
-                      Schedule a call
-                    </a>
-                  </div>
-                  <div className="mobile-menu-footer">
-                    <div className="mobile-menu-copyrights">
-                      <p>Copyright 2026 © VMG Next. All Rights Reserved.</p>
+              <div className="vmg-mobile-drawer-links">
+                {NAV_LINKS.map((item, idx) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setMobileOpen(false)}
+                    className={`vmg-mobile-drawer-link ${isNavActive(item.to) ? 'is-active' : ''}`}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <span className="vmg-mobile-drawer-idx">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <span className="vmg-mobile-drawer-label">{item.label}</span>
                     </div>
-                  </div>
-                </div>
+                    <i
+                      className="fa-solid fa-arrow-right"
+                      style={{ color: isNavActive(item.to) ? '#E70000' : 'rgba(255,255,255,0.45)' }}
+                    ></i>
+                  </Link>
+                ))}
               </div>
             </div>
-          </nav>
+
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '18px' }}>
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <a
+                  href={`tel:+1${settings.phone.replace(/[^0-9]/g, '')}`}
+                  className="vmg-nav-phone-chip"
+                  style={{ justifyContent: 'center', padding: '12px 16px' }}
+                >
+                  <span className="vmg-nav-live-dot" aria-hidden="true"></span>
+                  <span>Call Estimating: {settings.phone}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    openEstimateModal();
+                  }}
+                  className="vmg-nav-cta-btn"
+                  style={{ justifyContent: 'center', padding: '13px 20px' }}
+                >
+                  <span>Schedule Estimating Call</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <p
+                style={{
+                  textAlign: 'center',
+                  color: 'rgba(255,255,255,0.42)',
+                  fontSize: '11.5px',
+                  marginTop: '14px',
+                }}
+              >
+                Copyright 2026 © VMG NeXT Construction. All Rights Reserved.
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* PAGE CONTENT */}

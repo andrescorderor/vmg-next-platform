@@ -600,7 +600,7 @@ export function HomePage() {
    2. SERVICES PAGE (Exact 1:1 DOM & CSS from https://vmgnext.com/services/)
    ============================================================================ */
 export function ServicesPage() {
-  const { services } = useVmg();
+  const { services, openEstimateModal } = useVmg();
   const visibleServices = services
     .filter((s) => s.visible)
     .sort((a, b) => a.orderIndex - b.orderIndex);
@@ -691,11 +691,11 @@ export function ServicesPage() {
         </div>
       </div>
 
-      {/* 3. MAIN SERVICES CONTENT (Exact 1:1 Alternating .service-card Layout) */}
-      <div className="section-services-main-content">
+      {/* 3. REDESIGNED ARCHITECTURAL SERVICES BENTO CARDS (Same Audited Services List) */}
+      <div className="section-services-main-content vmg-srv-section">
         <div className="container">
-          <div className="row services-title-margin">
-            <div className="col-md-6 col-12">
+          <div className="row">
+            <div className="col-lg-8 col-12">
               <div className="home-about-wrapper">
                 <p className="home-about services-animate">OUR SERVICES</p>
               </div>
@@ -705,49 +705,98 @@ export function ServicesPage() {
             </div>
           </div>
 
-          <div className="row">
+          {/* Quick-Jump Architectural Division Bar */}
+          <div className="vmg-srv-jump-bar" aria-label="Services quick jump navigation">
             {visibleServices.map((srv, idx) => {
-              const imageLeft = idx % 2 === 0;
+              const label =
+                getShortServiceTitle(srv.title) === 'Water Treatment'
+                  ? 'Water Treatment Facilities'
+                  : getShortServiceTitle(srv.title);
               return (
-                <div className="col-12" key={srv.id}>
-                  <div className={`service-card ${!imageLeft ? 'service-card--reversed' : ''}`}>
-                    {imageLeft && (
-                      <div className="col-xxl-6 col-12">
-                        <img src={srv.detailImage} alt={srv.title} className="service-img" />
-                      </div>
-                    )}
-                    <div className="col-xxl-6 col-12">
-                      <div className="service-content-wrapper">
-                        <h3 className="service-title">
-                          {getShortServiceTitle(srv.title) === 'Water Treatment'
-                            ? 'Water Treatment Facilities'
-                            : getShortServiceTitle(srv.title)}
-                        </h3>
-                        <p className="service-para">{srv.fullDesc}</p>
-                        <ul className="service-bullet-points">
-                          {srv.bullets.map((bullet, bIdx) => (
-                            <li key={bIdx}>
-                              <div className="service-list-item-content">
-                                <div className="service-bullet-icon">
-                                  <img
-                                    src="https://vmgnext.com/wp-content/uploads/2025/06/check.png"
-                                    alt="checkbox icon"
-                                  />
-                                </div>
-                                {bullet}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                <button
+                  key={srv.id}
+                  type="button"
+                  className="vmg-srv-jump-pill"
+                  onClick={() =>
+                    document
+                      .getElementById(`srv-card-${srv.id}`)
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }
+                >
+                  <span className="num">{String(idx + 1).padStart(2, '0')}</span>
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="vmg-srv-stack">
+            {visibleServices.map((srv, idx) => {
+              const reversed = idx % 2 === 1;
+              const isDark = idx % 2 === 1;
+              const displayTitle =
+                getShortServiceTitle(srv.title) === 'Water Treatment'
+                  ? 'Water Treatment Facilities'
+                  : getShortServiceTitle(srv.title);
+
+              return (
+                <article
+                  key={srv.id}
+                  id={`srv-card-${srv.id}`}
+                  className={`vmg-srv-card ${reversed ? 'vmg-srv-card--reversed' : ''} ${
+                    isDark ? 'vmg-srv-card--dark' : ''
+                  }`}
+                >
+                  <div className="vmg-srv-media">
+                    <div className="vmg-srv-media-overlay">
+                      <span className="vmg-srv-num-badge">
+                        <span className="dot"></span>
+                        <span>DIVISION {String(idx + 1).padStart(2, '0')}</span>
+                      </span>
+                      <span className="vmg-srv-spec-pill">
+                        <i className="fa-solid fa-layer-group"></i>
+                        <span>{srv.bullets.length} Key Capabilities</span>
+                      </span>
                     </div>
-                    {!imageLeft && (
-                      <div className="col-xxl-6 col-12 text-right">
-                        <img src={srv.detailImage} alt={srv.title} className="service-img" />
-                      </div>
-                    )}
+                    <img src={srv.detailImage} alt={srv.title} />
                   </div>
-                </div>
+
+                  <div className="vmg-srv-body">
+                    <div>
+                      <span className="vmg-srv-eyebrow">
+                        SCOPE {String(idx + 1).padStart(2, '0')} // VMG NEXT STRUCTURAL
+                      </span>
+                      <h3 className="vmg-srv-title">{displayTitle}</h3>
+                      <p className="vmg-srv-desc">{srv.fullDesc}</p>
+                    </div>
+
+                    <div className="vmg-srv-bullets-grid">
+                      {srv.bullets.map((bullet, bIdx) => (
+                        <div className="vmg-srv-bullet-tile" key={bIdx}>
+                          <span className="vmg-srv-bullet-check">
+                            <i className="fa-solid fa-check"></i>
+                          </span>
+                          <span>{bullet}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="vmg-srv-footer">
+                      <button
+                        type="button"
+                        onClick={() => openEstimateModal(srv.title)}
+                        className="vmg-srv-estimate-btn"
+                      >
+                        <span>Request Estimate for {displayTitle}</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </button>
+                      <Link to="/projects" className="vmg-srv-projects-link">
+                        <span>View Built Projects</span>
+                        <i className="fa-solid fa-arrow-right"></i>
+                      </Link>
+                    </div>
+                  </div>
+                </article>
               );
             })}
           </div>
